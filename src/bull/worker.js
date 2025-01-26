@@ -1,5 +1,7 @@
 import { Worker } from "bullmq";
 import { calendarProcedure, scrapeProcedure } from "./procedure.js";
+import prisma from "../../prisma/prisma.client.js";
+import { calendarQueue } from "./queue.js";
 
 const initScraper = () => {
   const worker = new Worker(
@@ -24,6 +26,29 @@ const initScraper = () => {
 
   worker.on("completed", async (job) => {
     console.log(`Job completed`);
+    if (job.data.type === "scrape") {
+      const dayOrder = job.returnvalue;
+
+      try {
+        const users = await prisma.user.findMany({
+          where: {
+            timetable: {
+              not: null,
+            },
+          },
+        });
+
+        for (const user of users) {
+          await calendarQueue.add("Add events to calendar", {
+            type: "calendar",
+            user,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    }
   });
 
   worker.on("failed", async (job, err) => {
@@ -43,7 +68,7 @@ const initCalendar = () => {
         const result = await calendarProcedure(job);
         return result;
       } catch (error) {
-        job.error(`Error processing job of type: ${job.data.type}`, error);
+        job.log(`Error processing job of type: ${job.data.type}`, error);
         console.error(`Error processing job of type: ${job.data.type}`, error);
         throw error;
       }
@@ -64,12 +89,12 @@ const initCalendar = () => {
 
   worker.on("failed", async (job, err) => {
     console.error(`Job failed with error:`, err);
-    job.error(`Job failed with error:`, err);
+    job.log(`Job failed with error:`, err);
   });
 
   worker.on("error", (err) => {
     console.error("Worker error:", err);
-    job.error("Worker error:", err);
+    job.log("Worker error:", err);
   });
 };
 

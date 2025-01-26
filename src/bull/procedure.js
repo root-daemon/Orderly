@@ -39,6 +39,11 @@ export const calendarProcedure = async (job) => {
     },
   });
 
+  if (dayOrder === 0) {
+    job.log("No Day Order");
+    return;
+  }
+
   const lectures = user.timetable[dayOrder];
 
   await Promise.all(
@@ -52,4 +57,6 @@ export const calendarProcedure = async (job) => {
       });
     })
   );
+
+  return `Succesfully added calendar events for ${user.email}`;
 };

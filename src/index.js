@@ -6,6 +6,7 @@ import { errorHandler } from "./api/middlewares/errorHandler.js";
 import { calendarQueue, scraperQueue } from "./bull/queue.js";
 import prisma from "../prisma/prisma.client.js";
 import { oauth2Client, scopes } from "./utils/googleUtils.js";
+import { initCalendar, initScraper } from "./bull/worker.js";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -14,6 +15,25 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+const initBull = async () => {
+  console.log("Worker started");
+  initScraper();
+  initCalendar();
+  await scraperQueue.add(
+    "Scrape Academia",
+    {
+      type: "scrape",
+    },
+    {
+      repeat: {
+        cron: "0 2 * * *",
+      },
+    }
+  );
+};
+
+initBull();
 
 app.get("/", (req, res) => {
   res.status(200).send("Hello World");
@@ -24,7 +44,7 @@ app.use("/admin", serverAdapter.getRouter());
 
 app.get("/scrape", async (req, res) => {
   try {
-    await scraperQueue.add("scraper", {
+    await scraperQueue.add("Scrape Academia", {
       type: "scrape",
     });
     res.status(200).json({
@@ -44,7 +64,7 @@ app.get("/auth", (req, res) => {
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: scopes,
-    prompt: "consent",
+    // prompt: "consent",
   });
   res.redirect(url);
 });
@@ -104,7 +124,7 @@ app.get("/calendar", async (req, res) => {
     });
 
     for (const user of users) {
-      await calendarQueue.add("calendar", {
+      await calendarQueue.add("Add events to calendar", {
         type: "calendar",
         user,
       });

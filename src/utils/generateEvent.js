@@ -16,6 +16,9 @@ const generateEvent = (subject, startTime, endTime) => {
       dateTime: end,
       timeZone: "Asia/Kolkata",
     },
+    reminders: {
+      useDefault: false,
+    },
   };
 };
 
