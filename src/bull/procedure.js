@@ -2,16 +2,15 @@ import prisma from "../../prisma/prisma.client.js";
 import automateLogin from "../scrapers/dayOrder.js";
 import { google } from "googleapis";
 import dotenv from "dotenv";
-import prisma from "../prisma/prisma.client.js";
-import generateEvent from "./utils/generateEvent.js";
+import generateEvent from "../utils/generateEvent.js";
+import { oauth2Client } from "../utils/googleUtils.js";
 
 dotenv.config();
 
 export const scrapeProcedure = async (job) => {
   console.log("Initialise Scraper Procedure");
   job.log("Initialise Scraper Procedure");
-  let dayOrder = await automateLogin(job);
-  dayOrder = parseInt(dayOrder);
+  const dayOrder = await automateLogin(job);
   await prisma.academia.create({
     data: {
       dayOrder,
@@ -20,13 +19,11 @@ export const scrapeProcedure = async (job) => {
   return dayOrder;
 };
 
-export const calendarProcedure = async (job, user, dayOrder) => {
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.CLIENT_ID,
-    process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URL
-  );
+export const calendarProcedure = async (job) => {
+  console.log("Initialise Calendar Procedure");
+  job.log("Initialise Calendar Procedure");
 
+  const user = job.data.user;
   const refreshToken = user.refreshToken;
   oauth2Client.setCredentials({ refresh_token: refreshToken });
 

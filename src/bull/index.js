@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
-import { initScraper } from "./worker.js";
+import { initCalendar, initScraper } from "./worker.js";
 
 dotenv.config();
 
 const init = async () => {
-  console.log("Worker started!!!!");
+  console.log("Worker started");
   initScraper();
+  initCalendar();
 };
 
 init();

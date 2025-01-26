@@ -5,6 +5,7 @@ import { serverAdapter } from "./bull/bullBoard.js";
 import { errorHandler } from "./api/middlewares/errorHandler.js";
 import { calendarQueue, scraperQueue } from "./bull/queue.js";
 import prisma from "../prisma/prisma.client.js";
+import { oauth2Client, scopes } from "./utils/googleUtils.js";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -40,11 +41,6 @@ app.get("/scrape", async (req, res) => {
 });
 
 app.get("/auth", (req, res) => {
-  const scopes = [
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/userinfo.profile",
-    "https://www.googleapis.com/auth/userinfo.email",
-  ];
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: scopes,
@@ -54,13 +50,6 @@ app.get("/auth", (req, res) => {
 });
 
 app.get("/auth/redirect", async (req, res) => {
-  oauth2Client.on("tokens", (tokens) => {
-    if (tokens.refresh_token) {
-      console.log("FROM LISTENER", tokens.refresh_token);
-    }
-    console.log("FROM LISTENER", tokens.access_token);
-  });
-
   const { tokens } = await oauth2Client.getToken(req.query.code);
 
   oauth2Client.setCredentials(tokens);
@@ -106,11 +95,21 @@ app.post("/timetable", async (req, res) => {
 
 app.get("/calendar", async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
-
-    await calendarQueue.add("scraper", {
-      type: "scrape",
+    const users = await prisma.user.findMany({
+      where: {
+        timetable: {
+          not: null,
+        },
+      },
     });
+
+    for (const user of users) {
+      await calendarQueue.add("calendar", {
+        type: "calendar",
+        user,
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: "Started",
