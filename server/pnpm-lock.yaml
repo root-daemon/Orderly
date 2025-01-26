@@ -16,7 +16,7 @@ dependencies:
     version: 6.2.1(prisma@6.2.1)
   bullmq:
     specifier: ^5.35.1
-    version: 5.36.0
+    version: 5.37.0
   cors:
     specifier: ^2.8.5
     version: 2.8.5
@@ -424,8 +424,8 @@ packages:
       ieee754: 1.2.1
     dev: false
 
-  /bullmq@5.36.0:
-    resolution: {integrity: sha512-+08ghSARvO2W0VxYh5HO4AnrF7FZ0MC3Shig76HO6shsytMCrgXAvYwbfBufP2bd0HR9eI1a5J7xKazjXX7ogA==}
+  /bullmq@5.37.0:
+    resolution: {integrity: sha512-h/wf979+9uROyYpB8oTE44Py6JERCluCSd+ZFpCZlPsYh+wxAkqrfHsHHHKBgsNJp9odWLIY4SG+280EXzXiCQ==}
     dependencies:
       cron-parser: 4.9.0
       ioredis: 5.4.2
