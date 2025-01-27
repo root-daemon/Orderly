@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import TimetableForm from "./components/TimetableForm";
 
-const App = () => {
+const Dashboard = () => {
   return (
     <div>
       <TimetableForm />
@@ -10,4 +10,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Dashboard;
