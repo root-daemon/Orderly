@@ -1,11 +1,15 @@
 import { Router } from "express";
 import {
-  authController,
-  redirectController,
-} from "../controllers/api.controller.js";
+  login,
+  logout,
+  redirect,
+  verify,
+} from "../controllers/auth.controller.js";
 const router = Router();
 
-router.get("/", authController);
-router.get("/redirect", redirectController);
+router.get("/", login);
+router.get("/redirect", redirect);
+router.get("/logout", logout);
+router.get("/verify", verify);
 
 export default router;

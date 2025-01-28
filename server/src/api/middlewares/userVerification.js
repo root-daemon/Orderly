@@ -3,29 +3,19 @@ import { oauth2Client } from "../../utils/googleUtils.js";
 
 export const verifyUser = async (req, res, next) => {
   try {
-    const authHeader = req.headers["authorization"];
-    const userEmail = req.body.email;
-    console.log(userEmail);
-    const token = authHeader?.split(" ")[1];
-    if (!token || !authHeader) {
-      throw {
-        statusCode: 401,
-        message: "Missing Access Token",
-      };
-    }
-    const { email } = await oauth2Client.getTokenInfo(token);
+    const { accessToken } = req.cookies;
+    const { email } = await oauth2Client.getTokenInfo(accessToken);
 
-    if (email !== userEmail) {
-      console.log("Could not verify");
-      throw {
-        statusCode: 403,
-        message: "Unauthorised",
-      };
-    }
-    console.log("Email Verified");
+    req.user = { email, accessToken };
+    console.log("Access token verified");
 
     next();
   } catch (error) {
-    next(error);
+    console.error(error);
+
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorised.",
+    });
   }
 };

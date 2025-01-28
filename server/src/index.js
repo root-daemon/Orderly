@@ -8,14 +8,20 @@ import apiRouter from "./api/routes/api.router.js";
 import authRouter from "./api/routes/auth.router.js";
 import { verifyAdmin } from "./api/middlewares/adminVerification.js";
 import { verifyUser } from "./api/middlewares/userVerification.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 const port = process.env.PORT || 3000;
 
 const app = express();
-
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 
 initBull();
 
