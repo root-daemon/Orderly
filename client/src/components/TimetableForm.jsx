@@ -10,33 +10,39 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { mockTimetable, timeSlots } from "../data/data";
+import axiosInstance from "../lib/axios";
 
-export default function TimetableForm() {
+export const TimetableForm = () => {
   const [timetable, setTimetable] = useState(mockTimetable);
 
-  const handleInputChange = (dayOrder, index, field, value) => {
+  const handleInputChange = (dayOrder, index, value, start, end) => {
     const updatedTimetable = { ...timetable };
     if (!updatedTimetable[dayOrder][index]) {
       updatedTimetable[dayOrder][index] = { subject: "", start: "", end: "" };
     }
-    updatedTimetable[dayOrder][index][field] = value;
+    updatedTimetable[dayOrder][index]["subject"] = value;
+    updatedTimetable[dayOrder][index]["start"] = start;
+    updatedTimetable[dayOrder][index]["end"] = end;
+
     setTimetable(updatedTimetable);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form submitted:", { timetable });
+    const data = await axiosInstance.post("/api/timetable", { timetable });
+    console.log(data);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto p-4">
+    <form onSubmit={handleSubmit} className="w-full  max-w-4xl mx-auto p-4">
       <Card>
         <CardHeader>
           <CardTitle>Timetable Form</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="1">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-5 my-3">
               {Object.keys(timetable).map((dayOrder) => (
                 <TabsTrigger key={dayOrder} value={dayOrder}>
                   DO {dayOrder}
@@ -52,7 +58,7 @@ export default function TimetableForm() {
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {timeSlots.map((slot, index) => (
-                        <div key={index} className="flex flex-col gap-y-2">
+                        <div key={index} className="flex flex-col gap-2">
                           <div className="flex justify-between text-sm text-gray-500">
                             <p>{slot.start}</p>
                             <p>{slot.end}</p>
@@ -65,8 +71,9 @@ export default function TimetableForm() {
                               handleInputChange(
                                 dayOrder,
                                 index,
-                                "subject",
-                                e.target.value
+                                e.target.value,
+                                slot.start,
+                                slot.end
                               )
                             }
                           />
@@ -85,4 +92,6 @@ export default function TimetableForm() {
       </Card>
     </form>
   );
-}
+};
+
+export default TimetableForm;
