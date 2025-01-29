@@ -64,7 +64,11 @@ const automateLogin = async (job) => {
     browser = await puppeteer.launch({
       headless: true,
       defaultViewport: { width: 1080, height: 1024 },
-      args: ["--disable-features=site-per-process"],
+      args: [
+        "--disable-features=site-per-process",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+      ],
     });
 
     const page = await browser.newPage();
