@@ -54,9 +54,9 @@ export default function Timetable({ timetable }) {
                     {slot && (
                       <div className="text-center">
                         <div className="font-semibold">{slot.subject}</div>
-                        <div className="text-xs text-gray-500">
+                        {/* <div className="text-xs text-gray-500">
                           {slot.start} - {slot.end}
-                        </div>
+                        </div> */}
                       </div>
                     )}
                   </TableCell>
