@@ -26,7 +26,6 @@ export const createTimetable = async (req, res) => {
 export const getTimetable = async (req, res) => {
   try {
     const { email } = req.user;
-    console.log(email);
 
     const data = await prisma.user.findUnique({
       where: {

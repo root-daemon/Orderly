@@ -43,8 +43,6 @@ export const redirect = async (req, res, next) => {
       },
     });
 
-    console.log("User's Email:", email);
-
     const redirectUrl = `${process.env.CLIENT_URL}/dashboard`;
 
     res.cookie("accessToken", accessToken, {
@@ -78,7 +76,6 @@ export const logout = (req, res) => {
 
 export const verify = async (req, res, next) => {
   const { accessToken } = req.cookies;
-  console.log(accessToken);
   const { email } = req.user || "";
 
   try {
@@ -93,7 +90,6 @@ export const verify = async (req, res, next) => {
       err.message === "Token has expired"
     ) {
       try {
-        console.log(email);
         const user = await prisma.user.findUnique({
           where: { email },
         });

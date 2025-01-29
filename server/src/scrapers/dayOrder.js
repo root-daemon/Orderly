@@ -62,7 +62,7 @@ const automateLogin = async (job) => {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       defaultViewport: { width: 1080, height: 1024 },
       args: ["--disable-features=site-per-process"],
     });
