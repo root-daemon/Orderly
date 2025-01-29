@@ -48,7 +48,7 @@ export const redirect = async (req, res, next) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
+      sameSite: "None", 
     });
     res.redirect(redirectUrl);
   } catch (error) {
