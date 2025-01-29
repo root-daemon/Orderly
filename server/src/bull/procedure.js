@@ -48,13 +48,19 @@ export const calendarProcedure = async (job) => {
 
   await Promise.all(
     lectures.map(async (lecture) => {
-      const event = generateEvent(lecture.subject, lecture.start, lecture.end);
+      if (lecture) {
+        const event = generateEvent(
+          lecture.subject,
+          lecture.start,
+          lecture.end
+        );
 
-      await calendar.events.insert({
-        calendarId: "primary",
-        auth: oauth2Client,
-        resource: event,
-      });
+        await calendar.events.insert({
+          calendarId: "primary",
+          auth: oauth2Client,
+          resource: event,
+        });
+      }
     })
   );
 

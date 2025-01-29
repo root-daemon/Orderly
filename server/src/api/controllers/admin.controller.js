@@ -42,3 +42,30 @@ export const calendarController = async (req, res, next) => {
     next(error);
   }
 };
+
+export const singleEvent = async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+        timetable: {
+          not: null,
+        },
+      },
+    });
+
+    await calendarQueue.add("Add single user events to calendar", {
+      type: "calendar",
+      user,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Started",
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
