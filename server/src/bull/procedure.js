@@ -44,7 +44,10 @@ export const calendarProcedure = async (job) => {
     .setZone("Asia/Kolkata")
     .toFormat("yyyy-MM-dd");
 
-  job.log("CALENDAR PROC", todayIST);
+  job.log("CALENDAR PROC");
+  console.log("CALENDAR PROC");
+  job.log(todayIST);
+  console.log(todayIST);
 
   const { dayOrder } = await prisma.academia.findFirst({
     where: {
