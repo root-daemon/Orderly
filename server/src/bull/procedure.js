@@ -32,7 +32,9 @@ export const calendarProcedure = async (job) => {
     auth: oauth2Client,
   });
 
-  const date = new Date().toISOString();
+  const date = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
   const { dayOrder } = await prisma.academia.findFirst({
     where: {
       date,
