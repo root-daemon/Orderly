@@ -16,7 +16,7 @@ model User {
 }
 
 model Academia {
-  id       String   @id @unique @default(cuid())
-  date     DateTime @db.Date
+  id       String @id @unique @default(cuid())
+  date     String
   dayOrder Int
 }
