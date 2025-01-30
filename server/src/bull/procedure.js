@@ -14,12 +14,10 @@ export const scrapeProcedure = async (job) => {
   const dayOrder = await automateLogin(job);
   const todayIST = DateTime.now()
     .setZone("Asia/Kolkata")
-    .startOf("day")
-    .toJSDate();
+    .toFormat("yyyy-MM-dd");
 
   job.log(todayIST);
 
-  
   await prisma.academia.create({
     data: {
       date: todayIST,
@@ -44,8 +42,7 @@ export const calendarProcedure = async (job) => {
 
   const todayIST = DateTime.now()
     .setZone("Asia/Kolkata")
-    .startOf("day")
-    .toJSDate();
+    .toFormat("yyyy-MM-dd");
 
   const { dayOrder } = await prisma.academia.findFirst({
     where: {
