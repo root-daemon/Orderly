@@ -17,6 +17,6 @@ model User {
 
 model Academia {
   id       String   @id @unique @default(cuid())
-  date     DateTime @default(now()) @db.Date
+  date     DateTime @db.Date
   dayOrder Int
 }
