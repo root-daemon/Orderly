@@ -17,6 +17,9 @@ export const scrapeProcedure = async (job) => {
     .startOf("day")
     .toJSDate();
 
+  job.log(todayIST);
+
+  
   await prisma.academia.create({
     data: {
       date: todayIST,
