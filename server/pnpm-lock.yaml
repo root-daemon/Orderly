@@ -38,6 +38,9 @@ dependencies:
   ioredis:
     specifier: ^5.4.2
     version: 5.4.2
+  luxon:
+    specifier: ^3.5.0
+    version: 3.5.0
   prisma:
     specifier: ^6.2.1
     version: 6.2.1

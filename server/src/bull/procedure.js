@@ -4,6 +4,7 @@ import { google } from "googleapis";
 import dotenv from "dotenv";
 import generateEvent from "../utils/generateEvent.js";
 import { oauth2Client } from "../utils/googleUtils.js";
+import { DateTime } from "luxon";
 
 dotenv.config();
 
@@ -11,8 +12,14 @@ export const scrapeProcedure = async (job) => {
   console.log("Initialise Scraper Procedure");
   job.log("Initialise Scraper Procedure");
   const dayOrder = await automateLogin(job);
+  const todayIST = DateTime.now()
+    .setZone("Asia/Kolkata")
+    .startOf("day")
+    .toJSDate();
+
   await prisma.academia.create({
     data: {
+      date: todayIST,
       dayOrder,
     },
   });
@@ -32,15 +39,14 @@ export const calendarProcedure = async (job) => {
     auth: oauth2Client,
   });
 
-  const dateString = new Date().toLocaleDateString("en-CA", {
-    timeZone: "Asia/Kolkata",
-  });
-
-  const date = new Date(`${dateString}T00:00:00.000Z`);
+  const todayIST = DateTime.now()
+    .setZone("Asia/Kolkata")
+    .startOf("day")
+    .toJSDate();
 
   const { dayOrder } = await prisma.academia.findFirst({
     where: {
-      date,
+      date: todayIST,
     },
   });
 
