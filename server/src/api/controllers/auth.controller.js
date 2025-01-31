@@ -62,10 +62,11 @@ export const logout = (req, res) => {
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "None",
     });
 
     res.status(200).json({ success: true, message: "Logged out successfully" });
+    // res.redirect(process.env.CLIENT_URL);
   } catch (error) {
     console.error("Error during logout:", error);
     res
@@ -113,7 +114,7 @@ export const verify = async (req, res, next) => {
         res.cookie("accessToken", tokens.access_token, {
           httpOnly: true,
           secure: true,
-          sameSite: "strict",
+          sameSite: "None",
         });
 
         req.user = { email: req.body.email };
