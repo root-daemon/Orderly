@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TimetableForm from "../components/TimetableForm";
 import Timetable from "../components/Timetable";
 import axiosInstance from "../lib/axios";
+import { getUniqueSubjects } from "../lib/utils";
 
 const Dashboard = () => {
   const [timetable, setTimetable] = useState([]);
@@ -15,6 +16,8 @@ const Dashboard = () => {
   const getTimetable = async () => {
     const { data } = await axiosInstance.get("/api/timetable");
     setTimetable(data.data.timetable);
+    const uniqueSubjects = getUniqueSubjects(data.data.timetable);
+    setSubjects(uniqueSubjects);
   };
 
   const getDayOrder = async () => {

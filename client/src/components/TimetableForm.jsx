@@ -19,9 +19,19 @@ import {
 
 import { mockTimetable, timeSlots } from "../data/data";
 import axiosInstance from "../lib/axios";
+import { useEffect } from "react";
 
 export const TimetableForm = ({ subjects }) => {
   const [timetable, setTimetable] = useState(mockTimetable);
+
+  const getTimetable = async () => {
+    const { data } = await axiosInstance.get("/api/timetable");
+    setTimetable(data.data.timetable);
+  };
+
+  useEffect(() => {
+    getTimetable();
+  }, []);
 
   const handleInputChange = (dayOrder, index, value, start, end) => {
     const updatedTimetable = { ...timetable };
@@ -96,7 +106,10 @@ export const TimetableForm = ({ subjects }) => {
                                   ))}
                                 </>
                               ) : (
-                                <p className="text-xs p-2"> Add your subjects</p>
+                                <p className="text-xs p-2">
+                                  {" "}
+                                  Add your subjects
+                                </p>
                               )}
                             </SelectContent>
                           </Select>
