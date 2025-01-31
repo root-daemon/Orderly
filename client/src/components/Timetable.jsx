@@ -25,12 +25,12 @@ const hours = [
 
 export default function Timetable({ timetable }) {
   if (!timetable || Object.keys(timetable).length === 0) {
-    return <div>Add your timetable here</div>;
+    return <div></div>;
   }
 
   return (
-    <div className="flex w-[90%] md:w-[80%] mx-auto py-10 ">
-      <Table className="  shadow-lg">
+    <div className="flex w-full mx-auto py-10 ">
+      <Table className="shadow-2xl">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[200px] border">Time</TableHead>

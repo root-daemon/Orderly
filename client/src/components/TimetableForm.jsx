@@ -9,10 +9,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { mockTimetable, timeSlots } from "../data/data";
 import axiosInstance from "../lib/axios";
 
-export const TimetableForm = () => {
+export const TimetableForm = ({ subjects }) => {
   const [timetable, setTimetable] = useState(mockTimetable);
 
   const handleInputChange = (dayOrder, index, value, start, end) => {
@@ -35,7 +43,7 @@ export const TimetableForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full  max-w-4xl mx-auto p-4">
+    <form onSubmit={handleSubmit} className="w-full max-w-5xl mx-auto">
       <Card>
         <CardHeader>
           <CardTitle>Timetable Form</CardTitle>
@@ -59,24 +67,39 @@ export const TimetableForm = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {timeSlots.map((slot, index) => (
                         <div key={index} className="flex flex-col gap-2">
-                          <div className="flex justify-between text-sm text-gray-500">
+                          <div className="flex justify-between text-sm text-gray-700">
                             <p>{slot.start}</p>
                             <p>{slot.end}</p>
                           </div>
-                          <Input
-                            type="text"
-                            placeholder="Subject"
+                          <Select
                             value={timetable[dayOrder][index]?.subject || ""}
-                            onChange={(e) =>
+                            onValueChange={(value) =>
                               handleInputChange(
                                 dayOrder,
                                 index,
-                                e.target.value,
+                                value,
                                 slot.start,
                                 slot.end
                               )
                             }
-                          />
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Subject" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {subjects.length > 0 ? (
+                                <>
+                                  {subjects.map((subject) => (
+                                    <SelectItem key={subject} value={subject}>
+                                      {subject}
+                                    </SelectItem>
+                                  ))}
+                                </>
+                              ) : (
+                                <p className="text-xs p-2"> Add your subjects</p>
+                              )}
+                            </SelectContent>
+                          </Select>
                         </div>
                       ))}
                     </div>
