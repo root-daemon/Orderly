@@ -1,8 +1,9 @@
 import prisma from "../../../prisma/prisma.client.js";
 import { oauth2Client, scopes } from "../../utils/googleUtils.js";
 import axios from "axios";
+import { DateTime } from "luxon";
 
-export const createTimetable = async (req, res) => {
+export const createTimetable = async (req, res, next) => {
   try {
     const { email } = req.user;
     const { timetable } = req.body;
@@ -23,7 +24,7 @@ export const createTimetable = async (req, res) => {
   }
 };
 
-export const getTimetable = async (req, res) => {
+export const getTimetable = async (req, res, next) => {
   try {
     const { email } = req.user;
 
@@ -44,7 +45,7 @@ export const getTimetable = async (req, res) => {
   }
 };
 
-export const createCalendar = async (req, res) => {
+export const createCalendar = async (req, res, next) => {
   try {
     await axios.post(`${process.env.SERVER_URL}/admin/calendar`, req.user, {
       headers: {
@@ -56,6 +57,25 @@ export const createCalendar = async (req, res) => {
       success: true,
       message: "Succesfully added events to calendar",
     });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+export const getDayOrder = async (req, res, next) => {
+  try {
+    const todayIST = DateTime.now()
+      .setZone("Asia/Kolkata")
+      .toFormat("yyyy-MM-dd");
+
+    const { dayOrder } = await prisma.academia.findFirst({
+      where: {
+        date: todayIST,
+      },
+    });
+
+    res.status(200).json({ success: true, data: dayOrder });
   } catch (error) {
     console.error(error);
     next(error);
