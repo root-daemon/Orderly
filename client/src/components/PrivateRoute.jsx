@@ -1,29 +1,34 @@
 import { useState, useEffect } from "react";
 import { Navigate, Outlet } from "react-router";
 import axiosInstance from "../lib/axios";
+import Navbar from "./Navbar";
+import useAuthenticate from "../hooks/useAuthenticate";
 
 const PrivateRoute = () => {
-  const [authenticated, setAuthenticated] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const verifyUser = async () => {
-      try {
-        const { data } = await axiosInstance.get("/auth/verify");
-        setAuthenticated(data.success);
-      } catch (error) {
-        setAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const authenticated = useAuthenticate();
 
-    verifyUser();
-  }, []);
+  useEffect(() => {
+    if (authenticated == true || authenticated == false) {
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+  }, [authenticated]);
 
   if (loading) return <div>Loading</div>;
 
-  return authenticated ? <Outlet /> : <Navigate to="/" />;
+  return authenticated ? (
+    <>
+      <Navbar />
+      <main>
+        <Outlet />
+      </main>
+    </>
+  ) : (
+    <Navigate to="/" />
+  );
 };
 
 export default PrivateRoute;

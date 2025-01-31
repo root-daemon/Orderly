@@ -21,14 +21,8 @@ const Dashboard = () => {
     getTimetable();
   }, []);
 
-  const logout = async () => {
-    const result = await axiosInstance.get("/auth/logout");
-    console.log(result);
-  };
-
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center">
-      <Button onClick={logout}>Logout</Button>
       <Button onClick={createCalendar}>Create Calendar</Button>
 
       <Timetable timetable={timetable} />
