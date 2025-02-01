@@ -63,7 +63,7 @@ export const calendarProcedure = async (job) => {
   if (checkSchedule(user.timetable)) {
     await Promise.all(
       lectures.map(async (lecture) => {
-        if (lecture) {
+        if (lecture.subject) {
           const event = generateEvent(
             lecture.subject,
             lecture.start,

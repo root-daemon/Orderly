@@ -47,7 +47,7 @@ export const singleEvent = async (req, res, next) => {
     const user = await prisma.user.findUnique({
       where: {
         email,
-        enabled: true,
+        // enabled: true,
       },
     });
 
