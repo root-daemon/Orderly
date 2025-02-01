@@ -4,7 +4,7 @@ import prisma from "../../../prisma/prisma.client.js";
 export const scrapeController = async (req, res, next) => {
   try {
     await scraperQueue.add("Scrape Academia", {
-      type: "scrape",
+      type: "scrape single",
     });
     res.status(200).json({
       success: true,
