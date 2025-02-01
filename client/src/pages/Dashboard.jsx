@@ -12,13 +12,16 @@ const Dashboard = () => {
   const [timetable, setTimetable] = useState(mockTimetable);
   const [dayOrder, setDayOrder] = useState(null);
   const [subjectInput, setSubjectInput] = useState("");
-  const [subjects, setSubjects] = useState([""]);
+  const [subjects, setSubjects] = useState(["None"]);
 
   const getTimetable = async () => {
     const { data } = await axiosInstance.get("/api/timetable");
-    setTimetable(data.data.timetable);
-    const uniqueSubjects = getUniqueSubjects(data.data.timetable);
-    setSubjects(uniqueSubjects);
+    const response = data.data.timetable;
+    if (response) {
+      setTimetable(data.data.timetable);
+      const uniqueSubjects = getUniqueSubjects(data.data.timetable);
+      setSubjects(uniqueSubjects);
+    }
   };
 
   const getDayOrder = async () => {
@@ -37,7 +40,9 @@ const Dashboard = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && subjectInput.trim()) {
-      setSubjects((prevSubjects) => [...prevSubjects, subjectInput.trim()]);
+      setSubjects((prevSubjects) => {
+        return [...prevSubjects, subjectInput.trim()].sort();
+      });
       setSubjectInput("");
     }
   };
@@ -64,17 +69,21 @@ const Dashboard = () => {
       </div>
 
       <div className="flex flex-wrap justify-start items-start w-full gap-2 mb-4">
-        {subjects.map((subject) => (
-          <span
-            key={subject}
-            className="bg-[#232323] text-white px-3 py-1.5 rounded-lg cursor-pointer select-none"
-            onClick={() => {
-              removeSubject(subject);
-            }}
-          >
-            {subject}
-          </span>
-        ))}
+        {subjects.map((subject) =>
+          subject === "None" ? (
+            ""
+          ) : (
+            <span
+              key={subject}
+              className="bg-[#232323] text-white px-3 py-1.5 rounded-lg cursor-pointer select-none"
+              onClick={() => {
+                removeSubject(subject);
+              }}
+            >
+              {subject}
+            </span>
+          )
+        )}
       </div>
 
       <Tabs defaultValue="timetable" className="w-full">

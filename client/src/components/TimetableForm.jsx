@@ -19,21 +19,9 @@ import { days, hours } from "../data/data";
 import axiosInstance from "../lib/axios";
 
 export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
-  const getTimetable = async () => {
-    const { data } = await axiosInstance.get("/api/timetable");
-    setTimetable(data.data.timetable);
-  };
-
-  useEffect(() => {
-    getTimetable();
-  }, []);
-
   const handleInputChange = (dayOrder, index, value) => {
     const updatedTimetable = { ...timetable };
-    if (!updatedTimetable[dayOrder]) {
-      updatedTimetable[dayOrder] = [];
-    }
-    updatedTimetable[dayOrder][index] = { subject: value };
+    updatedTimetable[dayOrder][index]["subject"] = value;
     setTimetable(updatedTimetable);
   };
 
@@ -69,14 +57,11 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
                   {day}
                 </TableCell>
                 {hours.map((_, hourIndex) => {
-                  const currentSubject =
-                    timetable[dayOrder] && timetable[dayOrder][hourIndex]
-                      ? timetable[dayOrder][hourIndex].subject
-                      : "";
+                  const currentSubject = timetable[dayOrder][hourIndex].subject;
                   return (
                     <TableCell className="border p-0" key={hourIndex}>
                       <Select
-                        value={currentSubject}
+                        value={currentSubject === "None" ? "" : currentSubject}
                         onValueChange={(value) =>
                           handleInputChange(dayOrder, hourIndex, value)
                         }
@@ -85,12 +70,15 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
                           <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem key={"None"} value={"None"}>-</SelectItem>
                           {subjects.length > 0 ? (
-                            subjects.map((subject) => (
-                              <SelectItem key={subject} value={subject}>
-                                {subject}
-                              </SelectItem>
-                            ))
+                            subjects
+                              .filter((subject) => subject !== "None")
+                              .map((subject) => (
+                                <SelectItem key={subject} value={subject}>
+                                  {subject}
+                                </SelectItem>
+                              ))
                           ) : (
                             <p className="text-xs p-2">Add your subjects</p>
                           )}

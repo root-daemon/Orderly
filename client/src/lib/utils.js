@@ -7,11 +7,13 @@ export function cn(...inputs) {
 
 export function getUniqueSubjects(schedule) {
   return [
+    "None",
     ...new Set(
       Object.values(schedule)
         .flat()
         .filter((entry) => entry && entry.subject)
-        .map((entry) => entry.subject).sort()
+        .map((entry) => entry.subject)
+        .sort()
     ),
   ];
 }
