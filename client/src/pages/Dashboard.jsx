@@ -6,12 +6,13 @@ import TimetableForm from "../components/TimetableForm";
 import Timetable from "../components/Timetable";
 import axiosInstance from "../lib/axios";
 import { getUniqueSubjects } from "../lib/utils";
+import { mockTimetable } from "../data/data";
 
 const Dashboard = () => {
-  const [timetable, setTimetable] = useState([]);
+  const [timetable, setTimetable] = useState(mockTimetable);
   const [dayOrder, setDayOrder] = useState(null);
   const [subjectInput, setSubjectInput] = useState("");
-  const [subjects, setSubjects] = useState([]);
+  const [subjects, setSubjects] = useState([""]);
 
   const getTimetable = async () => {
     const { data } = await axiosInstance.get("/api/timetable");
@@ -47,9 +48,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="w-[95%] md:w-[60%] min-h-screen flex flex-col gap-2 justify-start mx-auto items-center p-8">
+    <div className="w-[95%] md:w-[70%] min-h-screen flex flex-col gap-2 justify-start mx-auto items-center p-8">
       <h1 className="self-start font-semibold text-xl mb-4">
-        Today's Day Order: {dayOrder}
+        Today's Day Order: {dayOrder === 0 ? "Holiday" : dayOrder}
       </h1>
 
       <div className="w-full mb-4">
@@ -62,11 +63,11 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap justify-start items-start w-full gap-2 mb-4">
         {subjects.map((subject) => (
           <span
             key={subject}
-            className="bg-black text-white px-3 py-1.5 rounded-lg"
+            className="bg-[#232323] text-white px-3 py-1.5 rounded-lg cursor-pointer select-none"
             onClick={() => {
               removeSubject(subject);
             }}
@@ -77,7 +78,7 @@ const Dashboard = () => {
       </div>
 
       <Tabs defaultValue="timetable" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 my-3">
+        <TabsList className="grid w-full grid-cols-2 ">
           <TabsTrigger value="timetable">Your Timetable</TabsTrigger>
           <TabsTrigger value="form">Edit Timetable</TabsTrigger>
         </TabsList>
@@ -85,7 +86,11 @@ const Dashboard = () => {
           <Timetable timetable={timetable} />
         </TabsContent>
         <TabsContent value="form">
-          <TimetableForm subjects={subjects} />
+          <TimetableForm
+            subjects={subjects}
+            timetable={timetable}
+            setTimetable={setTimetable}
+          />
         </TabsContent>
       </Tabs>
 

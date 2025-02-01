@@ -7,9 +7,5 @@ export const login = async () => {
 
 export const logout = async () => {
   const { data } = await axiosInstance.get("/auth/logout");
-  // if (data.success) {
-  //   window.location.href = "/";
-  // }
   window.location.reload();
-  // window.location.href = "/";
 };

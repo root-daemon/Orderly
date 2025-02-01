@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Table,
   TableBody,
@@ -8,55 +6,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { days, hours } from "../data/data";
 
-const days = ["DO 1", "DO 2", "DO 3", "DO 4", "DO 5"];
-const hours = [
-  "08:00 - 08:50",
-  "08:50 - 09:40",
-  "09:45 - 10:35",
-  "10:40 - 11:30",
-  "11:35 - 12:25",
-  "12:30 - 13:20",
-  "13:25 - 14:15",
-  "14:20 - 15:10",
-  "15:10 - 16:00",
-  "16:00 - 16:50",
-];
-
-export default function Timetable({ timetable }) {
-  if (!timetable || Object.keys(timetable).length === 0) {
-    return <div></div>;
-  }
-
+export const Timetable = ({ timetable }) => {
   return (
-    <div className="flex w-full mx-auto py-10 ">
+    <div className="flex max-w-7xl w-full mt-4  mx-auto overflow-x-auto">
       <Table className="shadow-2xl">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px] border">Time</TableHead>
-            {days.map((day, index) => (
-              <TableHead className="border text-center" key={index}>
-                {day}
+            <TableHead className="border">Day</TableHead>
+            {hours.map((hour, index) => (
+              <TableHead className="border text-pretty py-6" key={index}>
+                {hour}
               </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {hours.map((hour, hourIndex) => (
-            <TableRow key={hourIndex}>
-              <TableCell className="font-medium border">{hour}</TableCell>
-              {days.map((_, dayIndex) => {
+          {days.map((day, dayIndex) => (
+            <TableRow key={dayIndex}>
+              <TableCell className="font-medium border w-24 py-6">
+                {day}
+              </TableCell>
+              {hours.map((_, hourIndex) => {
                 const slot = timetable[dayIndex + 1]
                   ? timetable[dayIndex + 1][hourIndex]
                   : null;
                 return (
-                  <TableCell className="border" key={dayIndex}>
+                  <TableCell className="border" key={hourIndex}>
                     {slot && (
                       <div className="text-center">
                         <div className="font-semibold">{slot.subject}</div>
-                        {/* <div className="text-xs text-gray-500">
-                          {slot.start} - {slot.end}
-                        </div> */}
                       </div>
                     )}
                   </TableCell>
@@ -68,4 +48,6 @@ export default function Timetable({ timetable }) {
       </Table>
     </div>
   );
-}
+};
+
+export default Timetable;

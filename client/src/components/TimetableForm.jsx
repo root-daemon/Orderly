@@ -1,14 +1,12 @@
-import React, { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -16,14 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { mockTimetable, timeSlots } from "../data/data";
+import { Button } from "@/components/ui/button";
+import { days, hours } from "../data/data";
 import axiosInstance from "../lib/axios";
-import { useEffect } from "react";
 
-export const TimetableForm = ({ subjects }) => {
-  const [timetable, setTimetable] = useState(mockTimetable);
-
+export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
   const getTimetable = async () => {
     const { data } = await axiosInstance.get("/api/timetable");
     setTimetable(data.data.timetable);
@@ -33,15 +28,12 @@ export const TimetableForm = ({ subjects }) => {
     getTimetable();
   }, []);
 
-  const handleInputChange = (dayOrder, index, value, start, end) => {
+  const handleInputChange = (dayOrder, index, value) => {
     const updatedTimetable = { ...timetable };
-    if (!updatedTimetable[dayOrder][index]) {
-      updatedTimetable[dayOrder][index] = { subject: "", start: "", end: "" };
+    if (!updatedTimetable[dayOrder]) {
+      updatedTimetable[dayOrder] = [];
     }
-    updatedTimetable[dayOrder][index]["subject"] = value;
-    updatedTimetable[dayOrder][index]["start"] = start;
-    updatedTimetable[dayOrder][index]["end"] = end;
-
+    updatedTimetable[dayOrder][index] = { subject: value };
     setTimetable(updatedTimetable);
   };
 
@@ -53,79 +45,70 @@ export const TimetableForm = ({ subjects }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-5xl mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle>Timetable Form</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="1">
-            <TabsList className="grid w-full grid-cols-5 my-3">
-              {Object.keys(timetable).map((dayOrder) => (
-                <TabsTrigger key={dayOrder} value={dayOrder}>
-                  DO {dayOrder}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {Object.keys(timetable).map((dayOrder) => (
-              <TabsContent key={dayOrder} value={dayOrder}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Day {dayOrder}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {timeSlots.map((slot, index) => (
-                        <div key={index} className="flex flex-col gap-2">
-                          <div className="flex justify-between text-sm text-gray-700">
-                            <p>{slot.start}</p>
-                            <p>{slot.end}</p>
-                          </div>
-                          <Select
-                            value={timetable[dayOrder][index]?.subject || ""}
-                            onValueChange={(value) =>
-                              handleInputChange(
-                                dayOrder,
-                                index,
-                                value,
-                                slot.start,
-                                slot.end
-                              )
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Subject" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {subjects.length > 0 ? (
-                                <>
-                                  {subjects.map((subject) => (
-                                    <SelectItem key={subject} value={subject}>
-                                      {subject}
-                                    </SelectItem>
-                                  ))}
-                                </>
-                              ) : (
-                                <p className="text-xs p-2">
-                                  {" "}
-                                  Add your subjects
-                                </p>
-                              )}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+    <form
+      onSubmit={handleSubmit}
+      className="w-full mx-auto overflow-x-auto mt-4"
+    >
+      <Table className="shadow-2xl">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="border">Day</TableHead>
+            {hours.map((hour, index) => (
+              <TableHead className="border text-pretty py-6" key={index}>
+                {hour}
+              </TableHead>
             ))}
-          </Tabs>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit">Save Timetable</Button>
-        </CardFooter>
-      </Card>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {days.map((day, dayIndex) => {
+            const dayOrder = dayIndex + 1;
+            return (
+              <TableRow key={dayIndex}>
+                <TableCell className="font-medium border w-24 py-6">
+                  {day}
+                </TableCell>
+                {hours.map((_, hourIndex) => {
+                  const currentSubject =
+                    timetable[dayOrder] && timetable[dayOrder][hourIndex]
+                      ? timetable[dayOrder][hourIndex].subject
+                      : "";
+                  return (
+                    <TableCell className="border p-0" key={hourIndex}>
+                      <Select
+                        value={currentSubject}
+                        onValueChange={(value) =>
+                          handleInputChange(dayOrder, hourIndex, value)
+                        }
+                      >
+                        <SelectTrigger className="w-full h-full border-0">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects.length > 0 ? (
+                            subjects.map((subject) => (
+                              <SelectItem key={subject} value={subject}>
+                                {subject}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <p className="text-xs p-2">Add your subjects</p>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+      <div className="w-full flex justify-center items-center">
+        <Button type="submit" className="my-4">
+          Save
+        </Button>
+      </div>
     </form>
   );
 };

@@ -11,7 +11,7 @@ export function getUniqueSubjects(schedule) {
       Object.values(schedule)
         .flat()
         .filter((entry) => entry && entry.subject)
-        .map((entry) => entry.subject)
+        .map((entry) => entry.subject).sort()
     ),
   ];
 }
