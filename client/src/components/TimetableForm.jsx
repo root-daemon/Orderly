@@ -36,7 +36,7 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full mx-auto overflow-x-auto mt-4"
+      className="w-full mx-auto overflow-x-auto mt-6"
     >
       <Table className="shadow-2xl">
         <TableHeader>

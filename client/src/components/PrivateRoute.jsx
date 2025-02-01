@@ -17,7 +17,12 @@ const PrivateRoute = () => {
     }
   }, [authenticated]);
 
-  if (loading) return <div>Loading</div>;
+  if (loading)
+    return (
+      <div className="flex w-full min-h-screen justify-center items-center">
+        Loading
+      </div>
+    );
 
   return authenticated ? (
     <>
