@@ -20,9 +20,7 @@ export const calendarController = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
       where: {
-        timetable: {
-          not: null,
-        },
+        enabled: true,
       },
     });
 
@@ -49,9 +47,7 @@ export const singleEvent = async (req, res, next) => {
     const user = await prisma.user.findUnique({
       where: {
         email,
-        timetable: {
-          not: null,
-        },
+        enabled: true,
       },
     });
 

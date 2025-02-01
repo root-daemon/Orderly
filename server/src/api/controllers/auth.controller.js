@@ -1,4 +1,5 @@
 import prisma from "../../../prisma/prisma.client.js";
+import { mockTimetable } from "../../utils/data.js";
 import { oauth2Client, scopes } from "../../utils/googleUtils.js";
 import dotenv from "dotenv";
 
@@ -40,6 +41,8 @@ export const redirect = async (req, res, next) => {
         email,
         accessToken,
         refreshToken,
+        timetable: mockTimetable,
+        enabled: false,
       },
     });
 

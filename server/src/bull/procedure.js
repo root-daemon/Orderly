@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import generateEvent from "../utils/generateEvent.js";
 import { oauth2Client } from "../utils/googleUtils.js";
 import { DateTime } from "luxon";
+import { checkSchedule } from "../utils/data.js";
 
 dotenv.config();
 
@@ -44,11 +45,6 @@ export const calendarProcedure = async (job) => {
     .setZone("Asia/Kolkata")
     .toFormat("yyyy-MM-dd");
 
-  job.log("CALENDAR PROC");
-  console.log("CALENDAR PROC");
-  job.log(todayIST);
-  console.log(todayIST);
-
   const { dayOrder } = await prisma.academia.findFirst({
     where: {
       date: todayIST,
@@ -60,25 +56,31 @@ export const calendarProcedure = async (job) => {
     return;
   }
 
+  job.log("Day Order", dayOrder);
+
   const lectures = user.timetable[dayOrder];
 
-  await Promise.all(
-    lectures.map(async (lecture) => {
-      if (lecture) {
-        const event = generateEvent(
-          lecture.subject,
-          lecture.start,
-          lecture.end
-        );
+  if (checkSchedule(user.timetable)) {
+    await Promise.all(
+      lectures.map(async (lecture) => {
+        if (lecture) {
+          const event = generateEvent(
+            lecture.subject,
+            lecture.start,
+            lecture.end
+          );
 
-        await calendar.events.insert({
-          calendarId: "primary",
-          auth: oauth2Client,
-          resource: event,
-        });
-      }
-    })
-  );
+          await calendar.events.insert({
+            calendarId: "primary",
+            auth: oauth2Client,
+            resource: event,
+          });
+        }
+      })
+    );
+  } else {
+    return job.log("No lectures found for this use");
+  }
 
   return `Succesfully added calendar events for ${user.email}`;
 };
