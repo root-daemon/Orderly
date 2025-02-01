@@ -20,8 +20,9 @@ import axiosInstance from "../lib/axios";
 
 export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
   const handleInputChange = (dayOrder, index, value) => {
+    const subject = value === "None" ? "" : value;
     const updatedTimetable = { ...timetable };
-    updatedTimetable[dayOrder][index]["subject"] = value;
+    updatedTimetable[dayOrder][index]["subject"] = subject;
     setTimetable(updatedTimetable);
   };
 
@@ -70,7 +71,9 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
                           <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem key={"None"} value={"None"}>-</SelectItem>
+                          <SelectItem key={"None"} value={"None"}>
+                            -
+                          </SelectItem>
                           {subjects.length > 0 ? (
                             subjects
                               .filter((subject) => subject !== "None")
