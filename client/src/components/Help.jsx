@@ -15,7 +15,7 @@ const Help = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <HelpCircle className="h-5 w-5" />
+        <HelpCircle className="h-5 w-5 cursor-pointer" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[725px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -41,7 +41,7 @@ const Help = () => {
               />
             </li>
             <li>Save your timetable in the app.</li>
-            <li>Enable automated events.</li>
+            <li>Enable automated events (If not already enabled).</li>
             <li>
               Click "Manual Trigger" to add your schedule into Google Calendar
               the first time (Optional).
