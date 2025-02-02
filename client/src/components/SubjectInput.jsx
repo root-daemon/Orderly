@@ -10,7 +10,7 @@ const SubjectInput = ({ subjectInput, handleEnter, setSubjectInput }) => {
         placeholder="Add your subjects (press enter to add)"
         type="text"
         onChange={(e) => setSubjectInput(e.target.value)}
-        className="py-6 select-none"
+        className="py-6 select-none bg-white"
       />
     </div>
   );

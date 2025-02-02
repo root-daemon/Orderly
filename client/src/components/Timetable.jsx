@@ -10,7 +10,7 @@ import { days, hours } from "../data/data";
 
 export const Timetable = ({ timetable }) => {
   return (
-    <div className="flex max-w-7xl w-full mt-6  mx-auto overflow-x-auto">
+    <div className="flex max-w-7xl w-full mt-6  mx-auto overflow-x-auto bg-white">
       <Table className="shadow-2xl">
         <TableHeader>
           <TableRow>

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import EventBlock from "../components/EventBlock";
 import SubjectBlock from "../components/SubjectBlock";
 import SubjectInput from "../components/SubjectInput";
+import LinksBackground from "../components/background";
 
 const Dashboard = () => {
   const [timetable, setTimetable] = useState(mockTimetable);

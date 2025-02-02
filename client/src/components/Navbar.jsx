@@ -10,7 +10,7 @@ const Navbar = () => {
   const authenticated = useAuthenticate();
 
   return (
-    <nav className="flex  sm:flex-row justify-between w-full h-fit py-3 px-4 sm:px-[5%] md:px-[10%] lg:px-[20%] border-b gap-4 sm:gap-0">
+    <nav className="flex z-50 bg-white sm:flex-row justify-between w-full h-fit py-3 px-4 sm:px-[5%] md:px-[10%] lg:px-[20%] border-b gap-4 sm:gap-0">
       <Link className="flex justify-center items-center gap-2" to={"/"}>
         <CalendarDays className="h-6 w-6 md:h-7 md:w-7" />
         <h1 className="text-xl md:text-2xl font-medium select-none">Orderly</h1>
