@@ -9,9 +9,6 @@ Just log in once, save your timetable and let Orderly handle the rest. Your cale
 - **Google Calendar Integration** – Syncs your classes automatically based on your saved timetable.
 - **Real-Time Monitoring** – Powered by BullMQ for reliable job handling for errors and retries. Uses BullBoard to track job execution and logs.
 
-## Preview
-
-
 ##  Usage
 1. Log in using your Google account.
 2. Add your subjects
@@ -45,6 +42,24 @@ Orderly will now scrape academia daily at midnight and your classes into your go
 ### **Deployment**
 - **Backend:** AWS EC2
 - **Frontend:** Vercel
+
+## App Preview
+
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/999d7624-be3e-468a-830d-1367662f0370" />
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/c0bdb96f-3590-47a7-9ac2-0e15545d0629" />
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/337b2116-7e5d-4267-acd2-0d419c528d6a" />
+
+### Google Calendar
+
+<img width="1439" alt="image" src="https://github.com/user-attachments/assets/571fd94f-76f2-406c-a5a7-6a09380c9f76" />
+
+### Bull Board
+
+<img width="1438" alt="image" src="https://github.com/user-attachments/assets/cffcd1cc-1920-41d0-aa11-49569f0c26bf" />
+<img width="1440" alt="image" src="https://github.com/user-attachments/assets/95388160-477d-4b85-bc98-7b8215135a68" />
+<img width="1384" alt="image" src="https://github.com/user-attachments/assets/c88ff7ca-c3aa-42e9-9612-248c0d9e3f4b" />
+
+
 
 ## Installation & Setup
 ### **Backend**
