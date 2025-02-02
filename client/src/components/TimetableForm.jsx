@@ -19,7 +19,14 @@ import { days, hours } from "../data/data";
 import axiosInstance from "../lib/axios";
 import { useToast } from "@/hooks/use-toast";
 
-export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
+export const TimetableForm = ({
+  subjects,
+  timetable,
+  setTimetable,
+  enabled,
+  setEnabled,
+  setLoading,
+}) => {
   const { toast } = useToast();
 
   const handleInputChange = (dayOrder, index, value) => {
@@ -36,14 +43,24 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
         timetable,
       });
       if (data.success) {
-        toast({
-          title: "Updated Timetable",
+        const { data } = await axiosInstance.post("/api/job", {
+          enabled: true,
         });
+        if (data.success) {
+          toast({
+            title: "Updated Timetable",
+            description: "Your Google Calendar will update tomorrow at 12am",
+          });
+        }
+        setEnabled(data.data);
+        setLoading(false);
       } else {
         toast({
           variant: "destructive",
           title: "Could not update timetable",
         });
+        setEnabled(enabled);
+        setLoading(false);
       }
     } catch (error) {}
   };

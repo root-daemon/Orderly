@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import useAuthenticate from "../hooks/useAuthenticate";
 import { login, logout } from "../lib/auth";
 import { Link } from "react-router";
+import Help from "./Help"
+
 
 const Navbar = () => {
   const authenticated = useAuthenticate();
@@ -16,6 +18,8 @@ const Navbar = () => {
         <h1 className="text-xl md:text-2xl font-medium select-none">Orderly</h1>
       </Link>
       <div className="flex justify-center items-center gap-4">
+        <Help />
+
         <Button className="w-fit select-none bg-[#232323] hover:bg-[#232323]/80">
           <Link to={import.meta.env.VITE_PUBLIC_GITHUB_URL}>
             <Github className="h-5 w-5" />

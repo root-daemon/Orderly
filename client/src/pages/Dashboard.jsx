@@ -140,6 +140,7 @@ const Dashboard = () => {
 
   return (
     <div className="w-[95%] md:w-[80%] lg:w-[70%] min-h-screen flex flex-col gap-2 justify-start mx-auto items-center p-8">
+      {/* <LinksBackground value={20} /> */}
       <h1 className="self-start font-semibold text-xl mb-4 select-none">
         Today's Day Order: {dayOrder === 0 ? "Holiday" : dayOrder}
       </h1>
@@ -176,6 +177,9 @@ const Dashboard = () => {
             subjects={subjects}
             timetable={timetable}
             setTimetable={setTimetable}
+            enabled={enabled}
+            setEnabled={setEnabled}
+            setLoading={setLoading}
           />
         </TabsContent>
       </Tabs>
