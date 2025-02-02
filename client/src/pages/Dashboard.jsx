@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TimetableForm from "../components/TimetableForm";
 import Timetable from "../components/Timetable";
 import axiosInstance from "../lib/axios";
 import { getUniqueSubjects } from "../lib/utils";
 import { mockTimetable } from "../data/data";
-import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import EventBlock from "../components/EventBlock";
+import SubjectBlock from "../components/SubjectBlock";
+import SubjectInput from "../components/SubjectInput";
 
 const Dashboard = () => {
   const [timetable, setTimetable] = useState(mockTimetable);
@@ -42,22 +42,31 @@ const Dashboard = () => {
   };
 
   const createCalendar = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axiosInstance.post("/api/calendar");
-      if (data.success) {
+    const uniqueSubjects = getUniqueSubjects(timetable);
+
+    if (uniqueSubjects.length > 1) {
+      setLoading(true);
+      try {
+        const { data } = await axiosInstance.post("/api/calendar");
+        if (data.success) {
+          toast({
+            title: "Added timetable to calendar",
+          });
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error adding timetable to calendar", error);
         toast({
-          title: "Added timetable to calendar",
+          variant: "destructive",
+          title: "Could not add events to calendar",
         });
         setLoading(false);
       }
-    } catch (error) {
-      console.error("Error adding timetable to calendar", error);
+    } else {
       toast({
         variant: "destructive",
-        title: "Could not add events to calendar",
+        title: "Please add your subjects to the table",
       });
-      setLoading(false);
     }
   };
 
@@ -74,26 +83,35 @@ const Dashboard = () => {
   };
 
   const toggleEnabled = async () => {
-    try {
-      setLoading(true);
-      const { data } = await axiosInstance.post("/api/job", {
-        enabled: !enabled,
-      });
-      if (data.success) {
-        toast({
-          title: `Set automated events to ${data.data}`,
+    const uniqueSubjects = getUniqueSubjects(timetable);
+
+    if (uniqueSubjects.length > 1) {
+      try {
+        setLoading(true);
+        const { data } = await axiosInstance.post("/api/job", {
+          enabled: !enabled,
         });
-        setEnabled(data.data);
+        if (data.success) {
+          toast({
+            title: `Set automated events to ${data.data}`,
+          });
+          setEnabled(data.data);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error toggling  job:", error);
+        toast({
+          variant: "destructive",
+          title: "Could not set automated events",
+        });
+        setEnabled(enabled);
         setLoading(false);
       }
-    } catch (error) {
-      console.error("Error toggling  job:", error);
+    } else {
       toast({
         variant: "destructive",
-        title: "Could not set automated events",
+        title: "Please add your subjects to the timetable",
       });
-      setEnabled(enabled);
-      setLoading(false);
     }
   };
 
@@ -112,9 +130,11 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     getTimetable();
     getDayOrder();
     getEnabled();
+    setLoading(false);
   }, []);
 
   return (
@@ -123,62 +143,20 @@ const Dashboard = () => {
         Today's Day Order: {dayOrder === 0 ? "Holiday" : dayOrder}
       </h1>
 
-      <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 p-4 bg-gray-100 rounded-lg">
-        <div className="flex justify-center items-center gap-4">
-          <span className="text-base font-medium select-none text-[#2979db]">
-            Automated Events
-          </span>
-          <Switch
-            checked={enabled}
-            key={enabled}
-            disabled={loading}
-            onCheckedChange={toggleEnabled}
-          />
-        </div>
-        <Button
-          onClick={createCalendar}
-          className="select-none"
-          disabled={loading}
-        >
-          Manual Trigger
-        </Button>
-      </div>
+      <EventBlock
+        enabled={enabled}
+        loading={loading}
+        toggleEnabled={toggleEnabled}
+        createCalendar={createCalendar}
+      />
 
-      <h1 className="self-start font-semibold text-xl mb-4 select-none">
-        Your Subjects:
-      </h1>
-      <div className="flex flex-wrap justify-start items-start w-full gap-2 mb-4">
-        {subjects.length > 1 ? (
-          subjects.map((subject) =>
-            subject === "None" ? (
-              ""
-            ) : (
-              <span
-                key={subject}
-                className="bg-[#232323] text-white px-3 py-1.5 rounded-lg cursor-pointer select-none"
-                onClick={() => {
-                  removeSubject(subject);
-                }}
-              >
-                {subject}
-              </span>
-            )
-          )
-        ) : (
-          <p className="">You haven't added any subjects yet</p>
-        )}
-      </div>
+      <SubjectBlock subjects={subjects} removeSubject={removeSubject} />
 
-      <div className="w-full mb-8">
-        <Input
-          value={subjectInput}
-          onKeyDown={handleEnter}
-          placeholder="Add your subjects (press enter to add)"
-          type="text"
-          onChange={(e) => setSubjectInput(e.target.value)}
-          className="py-6 select-none"
-        />
-      </div>
+      <SubjectInput
+        subjectInput={subjectInput}
+        handleEnter={handleEnter}
+        setSubjectInput={setSubjectInput}
+      />
 
       <Tabs defaultValue="timetable" className="w-full">
         <TabsList className="grid w-full grid-cols-2 ">
