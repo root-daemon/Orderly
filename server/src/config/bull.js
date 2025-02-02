@@ -12,7 +12,7 @@ export const initBull = async () => {
     },
     {
       repeat: {
-        cron: "1 2 * * *",
+        cron: "1 5 * * *",
       },
     }
   );
