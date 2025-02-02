@@ -12,6 +12,12 @@ import image from "./assets/hero.png";
 import useAuthenticate from "./hooks/useAuthenticate";
 import { login } from "./lib/auth";
 import LinksBackground from "./components/background";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const App = () => {
   const authenticated = useAuthenticate();
@@ -39,10 +45,10 @@ const App = () => {
           startOnView={false}
           className="text-base md:text-lg lg:text-xl w-full sm:w-[80%] md:w-[70%] lg:w-[50%] text-center font-normal select-none"
         >
-          Orderly scrapes SRM Academia to fetch the current order and seamlessly
-          syncs your class schedule with Google Calendar. Just log in once, save
-          your timetable and let Orderly handle the rest. Your calendar will
-          update automatically every day.
+          Orderly scrapes SRM Academia to fetch the current day order and
+          seamlessly syncs your class schedule with Google Calendar. Just log in
+          once, save your timetable and let Orderly handle the rest. Your
+          calendar will update automatically every day.
         </TextAnimate>
 
         {authenticated ? (
@@ -53,13 +59,24 @@ const App = () => {
             Go to Dashboard
           </Button>
         ) : (
-          <Button
-            className="w-fit flex gap-2 font-light select-none mt-2"
-            onClick={login}
-          >
-            <GoogleIcon />
-            <p>Login with Google</p>
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="w-fit flex gap-2 font-light select-none mt-2"
+                  onClick={login}
+                >
+                  <GoogleIcon />
+                  <p>Login with Google</p>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="bg-primary text-white select-none max-w-64 text-center">
+                <p>
+                  Please disable cookie blockers/extensions for this website
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
 
         <div className="w-full max-w-[1000px] mt-8 px-4">
