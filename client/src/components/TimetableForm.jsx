@@ -17,8 +17,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { days, hours } from "../data/data";
 import axiosInstance from "../lib/axios";
+import { useToast } from "@/hooks/use-toast";
 
 export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
+  const { toast } = useToast();
+
   const handleInputChange = (dayOrder, index, value) => {
     const subject = value === "None" ? "" : value;
     const updatedTimetable = { ...timetable };
@@ -28,9 +31,21 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", { timetable });
-    const data = await axiosInstance.post("/api/timetable", { timetable });
-    console.log(data);
+    try {
+      const { data } = await axiosInstance.post("/api/timetable", {
+        timetable,
+      });
+      if (data.success) {
+        toast({
+          title: "Updated Timetable",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Could not update timetable",
+        });
+      }
+    } catch (error) {}
   };
 
   return (
@@ -54,13 +69,13 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
             const dayOrder = dayIndex + 1;
             return (
               <TableRow key={dayIndex}>
-                <TableCell className="font-medium border w-24 py-6">
+                <TableCell className="font-medium border min-w-20 py-6">
                   {day}
                 </TableCell>
                 {hours.map((_, hourIndex) => {
                   const currentSubject = timetable[dayOrder][hourIndex].subject;
                   return (
-                    <TableCell className="border p-0" key={hourIndex}>
+                    <TableCell className="border p-0 min-w-20" key={hourIndex}>
                       <Select
                         value={currentSubject === "None" ? "" : currentSubject}
                         onValueChange={(value) =>
@@ -96,7 +111,7 @@ export const TimetableForm = ({ subjects, timetable, setTimetable }) => {
         </TableBody>
       </Table>
       <div className="w-full flex justify-center items-center">
-        <Button type="submit" className="my-4">
+        <Button type="submit" className="my-4 text-base text-white px-10 py-4">
           Save
         </Button>
       </div>

@@ -17,7 +17,6 @@ const App = () => {
   const navigate = useNavigate();
   return (
     <div className="flex flex-col justify-center w-full min-h-screen p-4 md:p-5">
-      {/* Hero */}
       <div className="flex flex-1 flex-col gap-4 justify-start mt-8 2xl:mt-16 items-center w-full h-full p-2">
         <InteractiveHoverButton className="w-fit my-2 md:my-2 select-none">
           <Link to={import.meta.env.VITE_PUBLIC_GITHUB_URL}>
