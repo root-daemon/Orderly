@@ -118,9 +118,15 @@ const Dashboard = () => {
 
   const handleEnter = (e) => {
     if (e.key === "Enter" && subjectInput.trim()) {
-      setSubjects((prevSubjects) => {
-        return [...prevSubjects, subjectInput.trim()].sort();
-      });
+      if (subjects.includes(subjectInput.trim())) {
+        toast({
+          variant: "destructive",
+          title: "Subject already exists",
+        });
+        return;
+      }
+
+      setSubjects([...subjects, subjectInput.trim()].sort());
       setSubjectInput("");
     }
   };
