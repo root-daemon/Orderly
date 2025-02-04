@@ -2,12 +2,15 @@ import prisma from "../../prisma/prisma.client.js";
 import { google } from "googleapis";
 import dotenv from "dotenv";
 import generateEvent from "../utils/generateEvent.js";
-import { oauth2Client } from "../utils/googleUtils.js";
+import {
+  addLectureEvents,
+  deleteExistingEvents,
+  oauth2Client,
+} from "../utils/googleUtils.js";
 import { DateTime } from "luxon";
 import { checkSchedule } from "../utils/data.js";
 import automateScrape from "../scrapers/dayOrder.js";
 import automatePlanner from "../scrapers/planner.js";
-
 dotenv.config();
 
 export const scrapeProcedure = async (job) => {
@@ -77,26 +80,20 @@ export const calendarProcedure = async (job) => {
   const lectures = user.timetable[dayOrder];
 
   if (checkSchedule(user.timetable)) {
-    await Promise.all(
-      lectures.map(async (lecture) => {
-        if (lecture.subject) {
-          const event = generateEvent(
-            lecture.subject,
-            lecture.start,
-            lecture.end
-          );
+    const startOfDay = DateTime.now()
+      .setZone("Asia/Kolkata")
+      .startOf("day")
+      .toISO();
+    const endOfDay = DateTime.now()
+      .setZone("Asia/Kolkata")
+      .endOf("day")
+      .toISO();
 
-          await calendar.events.insert({
-            calendarId: "primary",
-            auth: oauth2Client,
-            resource: event,
-          });
-        }
-      })
-    );
+    await deleteExistingEvents(startOfDay, endOfDay);
+    await addLectureEvents(lectures);
   } else {
     return job.log("No lectures found for this use");
   }
 
-  return `Succesfully added calendar events for ${user.email}`;
+  return `Successfully added calendar events for ${user.email}`;
 };
