@@ -38,14 +38,15 @@ export const deleteExistingEvents = async (startOfDay, endOfDay) => {
   );
 };
 
-export const addLectureEvents = async (lectures) => {
+export const addLectureEvents = async (lectures, currentDate) => {
   await Promise.all(
     lectures.map(async (lecture) => {
       if (lecture.subject) {
         const event = generateEvent(
           lecture.subject,
           lecture.start,
-          lecture.end
+          lecture.end,
+          currentDate
         );
 
         await calendar.events.insert({

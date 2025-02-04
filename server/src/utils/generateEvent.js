@@ -1,12 +1,11 @@
 import createEventDateTime from "./timeConverter.js";
 
-const generateEvent = (subject, startTime, endTime) => {
-  const start = createEventDateTime(startTime);
-  const end = createEventDateTime(endTime);
+const generateEvent = (subject, startTime, endTime, specificDate) => {
+  const start = createEventDateTime(startTime, specificDate);
+  const end = createEventDateTime(endTime, specificDate);
 
   return {
     summary: subject,
-    // location: "SRM",
     description: "Class",
     start: {
       dateTime: start,

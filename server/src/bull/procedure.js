@@ -55,44 +55,44 @@ export const calendarProcedure = async (job) => {
   const refreshToken = user.refreshToken;
   oauth2Client.setCredentials({ refresh_token: refreshToken });
 
-  const calendar = google.calendar({
-    version: "v3",
-    auth: oauth2Client,
-  });
-
-  const todayIST = DateTime.now()
-    .setZone("Asia/Kolkata")
-    .toFormat("yyyy-MM-dd");
-
-  const { dayOrder } = await prisma.academia.findFirst({
-    where: {
-      date: todayIST,
-    },
-  });
-
-  if (dayOrder === 0) {
-    job.log("No Day Order");
-    return;
-  }
-
-  job.log("Day Order", dayOrder);
-
-  const lectures = user.timetable[dayOrder];
-
-  if (checkSchedule(user.timetable)) {
-    const startOfDay = DateTime.now()
+  for (let i = 0; i < 5; i++) {
+    const currentDate = DateTime.now()
       .setZone("Asia/Kolkata")
-      .startOf("day")
-      .toISO();
-    const endOfDay = DateTime.now()
-      .setZone("Asia/Kolkata")
-      .endOf("day")
-      .toISO();
+      .plus({ days: i })
+      .toFormat("yyyy-MM-dd");
 
-    await deleteExistingEvents(startOfDay, endOfDay);
-    await addLectureEvents(lectures);
-  } else {
-    return job.log("No lectures found for this use");
+    const { dayOrder } = await prisma.academia.findFirst({
+      where: {
+        date: currentDate,
+      },
+    });
+
+    if (dayOrder === 0) {
+      job.log(`No Day Order for ${currentDate}`);
+      continue;
+    }
+
+    job.log(`Day Order for ${currentDate}`, dayOrder);
+
+    const lectures = user.timetable[dayOrder];
+
+    if (checkSchedule(user.timetable)) {
+      const startOfDay = DateTime.now()
+        .setZone("Asia/Kolkata")
+        .plus({ days: i })
+        .startOf("day")
+        .toISO();
+      const endOfDay = DateTime.now()
+        .setZone("Asia/Kolkata")
+        .plus({ days: i })
+        .endOf("day")
+        .toISO();
+
+      await deleteExistingEvents(startOfDay, endOfDay);
+      await addLectureEvents(lectures, currentDate);
+    } else {
+      job.log(`No lectures found for ${currentDate}`);
+    }
   }
 
   return `Successfully added calendar events for ${user.email}`;
