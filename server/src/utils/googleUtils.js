@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import dotenv from "dotenv";
+import generateEvent from "../utils/generateEvent.js";
 
 dotenv.config();
 
@@ -13,3 +14,46 @@ export const scopes = [
   "https://www.googleapis.com/auth/userinfo.profile",
   "https://www.googleapis.com/auth/userinfo.email",
 ];
+
+export const calendar = google.calendar({
+  version: "v3",
+  auth: oauth2Client,
+});
+
+export const deleteExistingEvents = async (startOfDay, endOfDay) => {
+  const existingEvents = await calendar.events.list({
+    calendarId: "primary",
+    singleEvents: true,
+    timeMin: startOfDay,
+    timeMax: endOfDay,
+  });
+
+  await Promise.all(
+    existingEvents.data.items.map(async (event) => {
+      await calendar.events.delete({
+        calendarId: "primary",
+        eventId: event.id,
+      });
+    })
+  );
+};
+
+export const addLectureEvents = async (lectures) => {
+  await Promise.all(
+    lectures.map(async (lecture) => {
+      if (lecture.subject) {
+        const event = generateEvent(
+          lecture.subject,
+          lecture.start,
+          lecture.end
+        );
+
+        await calendar.events.insert({
+          calendarId: "primary",
+          auth: oauth2Client,
+          resource: event,
+        });
+      }
+    })
+  );
+};
