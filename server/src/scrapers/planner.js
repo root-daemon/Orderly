@@ -55,10 +55,11 @@ const login = async (page, job) => {
   await fs.writeFile(COOKIES_PATH, JSON.stringify(newCookies, null, 2));
   console.log("Cookies saved.");
 
-  return await getDayOrder(page, job);
+  //   return await getDayOrder(page, job);
+  return await getPlanner(page, job);
 };
 
-const automateScrape = async (job) => {
+const automatePlanner = async (job) => {
   let browser;
   try {
     browser = await puppeteer.launch({
@@ -79,19 +80,23 @@ const automateScrape = async (job) => {
 
     console.log("Set Cookies");
 
-    await page.goto("https://academia.srmist.edu.in", {
-      waitUntil: "networkidle0",
-      timeout: 60000,
-    });
+    await page.goto(
+      "https://academia.srmist.edu.in/#Page:Academic_Planner_2024_25_EVEN",
+      {
+        waitUntil: "networkidle0",
+        timeout: 60000,
+      }
+    );
 
     const isLoggedIn = await page
-      .evaluate(() => document.querySelector(".highlight"))
+      .evaluate(() => !!document.querySelector(".LogoDiv"))
       .catch(() => false);
 
     if (isLoggedIn) {
       job.log("Logged in using existing cookies.");
       console.log("Logged in using existing cookies.");
-      return await getDayOrder(page, job);
+      //   return await getDayOrder(page, job);
+      return await getPlanner(page, job);
     } else {
       return await login(page, job);
     }
@@ -105,35 +110,73 @@ const automateScrape = async (job) => {
   }
 };
 
-const getDayOrder = async (page, job) => {
+const getPlanner = async (page, job) => {
+  console.log("IN GET PLANNER");
   try {
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const dayOrders = await page.$$eval(".highlight", (elements) =>
-      elements.map((el) => el.innerText.trim())
-    );
+    const data = await page.evaluate(() => {
+      const rows = document.querySelectorAll("table tbody tr");
+      let result = {};
 
-    job.log("Day Orders:", dayOrders);
-    console.log("Day Orders:", dayOrders);
+      const headers = document.querySelectorAll("table th");
+      let months = [];
+      headers.forEach((header) => {
+        if (header.innerText.includes("'25")) {
+          months.push(header.innerText.replace("'25", "").trim());
+        }
+      });
 
-    const dayOrderString = dayOrders.find((item) =>
-      item.startsWith("Day Order:")
-    );
+      const monthsList = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
 
-    const dayOrderNumber =
-      dayOrderString && dayOrderString.match(/\d+/)
-        ? parseInt(dayOrderString.match(/\d+/)[0], 10)
-        : 0;
+      rows.forEach((row) => {
+        const cells = row.querySelectorAll("td");
+        for (let i = 0; i < months.length; i++) {
+          let dateIndex = i * 5;
+          let doIndex = i * 5 + 3;
+          if (cells[dateIndex] && cells[doIndex]) {
+            let date = cells[dateIndex].innerText.trim();
+            let doValue = cells[doIndex].innerText.trim();
 
-    job.log("Successfully fetched Day Order", dayOrderNumber);
-    console.log("Successfully fetched Day Order", dayOrderNumber);
+            if (date) {
+              let year = "2025";
+              let monthIndex = monthsList.indexOf(months[i]) + 1;
+              let formattedDate = `${year}-${monthIndex
+                .toString()
+                .padStart(2, "0")}-${date.padStart(2, "0")}`;
 
-    return dayOrderNumber;
+              let parsedDoValue =
+                doValue === "-" ? 0 : parseInt(doValue, 10) || 0;
+
+              result[formattedDate] = parsedDoValue;
+              console.log(formattedDate, parsedDoValue);
+            }
+          }
+        }
+      });
+
+      return result;
+    });
+
+    job.log(data);
+
+    return data;
   } catch (error) {
     console.error("An error occurred:", error.message);
-
-    throw error;
   }
 };
 
-export default automateScrape;
+export default automatePlanner;

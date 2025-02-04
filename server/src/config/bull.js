@@ -8,13 +8,14 @@ export const initBull = async () => {
   await scraperQueue.add(
     "Scrape Academia",
     {
-      type: "scrape",
+      type: "scrape planner",
     },
     {
       repeat: {
-        cron: "1 5 * * *",
+        cron: "0 3 * * *",
       },
     }
   );
+  // daily 3am update planner
   // Bull will not add a duplicate repeatable job unless the repeat identifier changes.
 };
