@@ -26,7 +26,7 @@ const initScraper = () => {
 
   worker.on("completed", async (job) => {
     console.log(`Job completed`);
-    if (job.data.type === "scrape") {
+    if (job.data.type === "scrape planner") {
       const dayOrder = job.returnvalue;
 
       try {
