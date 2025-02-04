@@ -16,6 +16,21 @@ export const scrapeController = async (req, res, next) => {
   }
 };
 
+export const scrapePlanner = async (req, res, next) => {
+  try {
+    await scraperQueue.add("Scrape Academia Planner", {
+      type: "scrape planner",
+    });
+    res.status(200).json({
+      success: true,
+      message: "Added scrape planner jobs to queue",
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
 export const calendarController = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({

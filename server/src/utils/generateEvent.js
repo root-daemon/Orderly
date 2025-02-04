@@ -6,7 +6,7 @@ const generateEvent = (subject, startTime, endTime) => {
 
   return {
     summary: subject,
-    location: "SRM",
+    // location: "SRM",
     description: "Class",
     start: {
       dateTime: start,

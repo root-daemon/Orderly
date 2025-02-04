@@ -1,31 +1,47 @@
 import prisma from "../../prisma/prisma.client.js";
-import automateLogin from "../scrapers/dayOrder.js";
 import { google } from "googleapis";
 import dotenv from "dotenv";
 import generateEvent from "../utils/generateEvent.js";
 import { oauth2Client } from "../utils/googleUtils.js";
 import { DateTime } from "luxon";
 import { checkSchedule } from "../utils/data.js";
+import automateScrape from "../scrapers/dayOrder.js";
+import automatePlanner from "../scrapers/planner.js";
 
 dotenv.config();
 
 export const scrapeProcedure = async (job) => {
   console.log("Initialise Scraper Procedure");
   job.log("Initialise Scraper Procedure");
-  const dayOrder = await automateLogin(job);
-  const todayIST = DateTime.now()
-    .setZone("Asia/Kolkata")
-    .toFormat("yyyy-MM-dd");
+  if (job.data.type === "scrape" || job.data.type === "scrape single") {
+    const dayOrder = await automateScrape(job);
+    const todayIST = DateTime.now()
+      .setZone("Asia/Kolkata")
+      .toFormat("yyyy-MM-dd");
 
-  job.log(todayIST);
+    job.log(todayIST);
 
-  await prisma.academia.create({
-    data: {
-      date: todayIST,
-      dayOrder,
-    },
-  });
-  return dayOrder;
+    await prisma.academia.upsert({
+      where: {
+        date: todayIST,
+      },
+      update: {
+        dayOrder,
+      },
+    });
+    return dayOrder;
+  } else if (job.data.type === "scrape planner") {
+    const planner = await automatePlanner(job);
+
+    for (const [date, dayOrder] of Object.entries(planner)) {
+      await prisma.academia.upsert({
+        where: { date },
+        update: { dayOrder },
+        create: { date, dayOrder },
+      });
+    }
+    return planner;
+  }
 };
 
 export const calendarProcedure = async (job) => {
