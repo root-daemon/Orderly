@@ -27,13 +27,10 @@ const initScraper = () => {
   worker.on("completed", async (job) => {
     console.log(`Job completed`);
     if (job.data.type === "scrape planner") {
-
       try {
         const users = await prisma.user.findMany({
           where: {
-            timetable: {
-              not: null,
-            },
+            enabled: true,
           },
         });
 
