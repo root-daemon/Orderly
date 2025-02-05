@@ -6,7 +6,6 @@ const generateEvent = (subject, startTime, endTime, specificDate) => {
 
   return {
     summary: subject,
-    description: "Class",
     start: {
       dateTime: start,
       timeZone: "Asia/Kolkata",
@@ -17,6 +16,11 @@ const generateEvent = (subject, startTime, endTime, specificDate) => {
     },
     reminders: {
       useDefault: false,
+    },
+    extendedProperties: {
+      private: {
+        generated_by: "Orderly",
+      },
     },
   };
 };
