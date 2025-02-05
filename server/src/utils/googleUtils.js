@@ -26,6 +26,7 @@ export const deleteExistingEvents = async (startOfDay, endOfDay) => {
     singleEvents: true,
     timeMin: startOfDay,
     timeMax: endOfDay,
+    privateExtendedProperty: ["generated_by=Orderly"],
   });
 
   await Promise.all(
