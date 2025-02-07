@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id           String  @id @unique @default(cuid())
-  email        String  @unique
-  accessToken  String?
-  refreshToken String?
-  timetable    Json?
-  enabled      Boolean
+  id              String  @id @unique @default(cuid())
+  email           String  @unique
+  accessToken     String?
+  refreshToken    String?
+  timetable       Json?
+  academiaCookies Json?
+  enabled         Boolean
 }
 
 model Academia {
