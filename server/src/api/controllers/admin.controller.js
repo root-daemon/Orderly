@@ -1,5 +1,6 @@
 import { calendarQueue, scraperQueue } from "../../bull/queue.js";
 import prisma from "../../../prisma/prisma.client.js";
+import { encrypt } from "../../utils/crypto.js";
 
 export const scrapeController = async (req, res, next) => {
   try {
@@ -24,6 +25,41 @@ export const scrapePlanner = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Added scrape planner jobs to queue",
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+export const scrapeTimetable = async (req, res, next) => {
+  const { email } = req.body;
+  const { academiaEmail } = req.body;
+  const { academiaPassword } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    const { academiaCookies } = user;
+    const encryptedPassword = encrypt(academiaPassword);
+
+    await scraperQueue.add("Scrape Academia Timetable", {
+      type: "scrape timetable",
+      user: {
+        email,
+        academiaEmail,
+        encryptedPassword,
+        academiaCookies,
+      },
+    });
+
+    scraperQueue.on("completed", (job, result) => {
+      console.log("SCRAPER QUEUE COMPLETE"); // fix thsi is broken
+      return true;
     });
   } catch (error) {
     console.error(error);
@@ -66,10 +102,17 @@ export const singleEvent = async (req, res, next) => {
       },
     });
 
-    await calendarQueue.add("Add single user events to calendar", {
+    const job = await calendarQueue.add("Add single user events to calendar", {
       type: "calendar",
       user,
     });
+
+    // this also broken
+
+    // const result = await job.waitUntilFinished();
+
+    // console.log(`Job with id ${job.id} has completed. Result: ${result}`);
+    // console.log("Calendar QUEUE COMPLETE");
 
     res.status(200).json({
       success: true,

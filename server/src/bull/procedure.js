@@ -1,7 +1,6 @@
 import prisma from "../../prisma/prisma.client.js";
 import { google } from "googleapis";
 import dotenv from "dotenv";
-import generateEvent from "../utils/generateEvent.js";
 import {
   addLectureEvents,
   deleteExistingEvents,
@@ -11,6 +10,8 @@ import { DateTime } from "luxon";
 import { checkSchedule } from "../utils/data.js";
 import automateScrape from "../scrapers/dayOrder.js";
 import automatePlanner from "../scrapers/planner.js";
+import automateTimetableScrape from "../scrapers/timetable.js";
+import generateTimetable from "../utils/generateTimetable.js";
 dotenv.config();
 
 export const scrapeProcedure = async (job) => {
@@ -44,6 +45,27 @@ export const scrapeProcedure = async (job) => {
       });
     }
     return planner;
+  } else if (job.data.type === "scrape timetable") {
+    const { email } = job.data.user;
+    console.log(email);
+    const data = await automateTimetableScrape(job);
+    const { batch } = data;
+    const { courses } = data;
+    const { storedCookies } = data;
+
+    const generatedTimetable = generateTimetable(courses, batch);
+
+    await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        academiaCookies: storedCookies,
+        timetable: generatedTimetable,
+      },
+    });
+
+    return generatedTimetable;
   }
 };
 

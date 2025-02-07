@@ -47,6 +47,38 @@ export const getTimetable = async (req, res, next) => {
   }
 };
 
+export const scrapeTimetable = async (req, res, next) => {
+  req.user.academiaEmail = req.body.email;
+  req.user.academiaPassword = req.body.password;
+  try {
+    const result = await axios.post(
+      `${process.env.SERVER_URL}/admin/scrape-timetable`,
+      req.user,
+      {
+        headers: {
+          "x-admin-password": process.env.ADMIN_PASSWORD,
+        },
+        withCredentials: true,
+      }
+    );
+    console.log("RSUTLS", result);
+    if (result) {
+      res.status(200).json({
+        success: true,
+        message: "Succesfully scraped timetable from academia",
+      });
+    } else {
+      res.status(400).json({
+        success: true,
+        message: "Could not scrape timetable from academia",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
 export const getDayOrder = async (req, res, next) => {
   try {
     const todayIST = DateTime.now()
@@ -68,16 +100,23 @@ export const getDayOrder = async (req, res, next) => {
 
 export const createCalendar = async (req, res, next) => {
   try {
-    await axios.post(`${process.env.SERVER_URL}/admin/calendar`, req.user, {
-      headers: {
-        "x-admin-password": process.env.ADMIN_PASSWORD,
-      },
-      withCredentials: true,
-    });
-    res.status(200).json({
-      success: true,
-      message: "Succesfully added events to calendar",
-    });
+    const result = await axios.post(
+      `${process.env.SERVER_URL}/admin/calendar`,
+      req.user,
+      {
+        headers: {
+          "x-admin-password": process.env.ADMIN_PASSWORD,
+        },
+        withCredentials: true,
+      }
+    );
+    console.log("RSUTLS", result);
+    if (result) {
+      res.status(200).json({
+        success: true,
+        message: "Succesfully added events to calendar",
+      });
+    }
   } catch (error) {
     console.error(error);
     next(error);
@@ -98,13 +137,11 @@ export const updateJob = async (req, res, next) => {
       },
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Updated job succesfully",
-        data: enabled,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Updated job succesfully",
+      data: enabled,
+    });
   } catch (error) {
     console.error(error);
     next(error);

@@ -45,6 +45,7 @@ const initScraper = () => {
         throw error;
       }
     }
+    return;
   });
 
   worker.on("failed", async (job, err) => {
