@@ -39,6 +39,7 @@ export const TimetableForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const { data } = await axiosInstance.post("/api/timetable", {
         timetable,
       });
@@ -68,7 +69,7 @@ export const TimetableForm = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full mx-auto overflow-x-auto mt-6 bg-white"
+      className="w-full mx-auto flex flex-col  overflow-x-auto mt-6 bg-white"
     >
       <Table className="shadow-2xl">
         <TableHeader>
@@ -92,14 +93,14 @@ export const TimetableForm = ({
                 {hours.map((_, hourIndex) => {
                   const currentSubject = timetable[dayOrder][hourIndex].subject;
                   return (
-                    <TableCell className="border p-0 min-w-20" key={hourIndex}>
+                    <TableCell className="border py-2 min-w-20" key={hourIndex}>
                       <Select
                         value={currentSubject === "None" ? "" : currentSubject}
                         onValueChange={(value) =>
                           handleInputChange(dayOrder, hourIndex, value)
                         }
                       >
-                        <SelectTrigger className="w-full h-full border-0">
+                        <SelectTrigger className="max-w-24 border-0">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent>
@@ -111,7 +112,7 @@ export const TimetableForm = ({
                               .filter((subject) => subject !== "None")
                               .map((subject) => (
                                 <SelectItem key={subject} value={subject}>
-                                  {subject}
+                                  {subject.split(":")[0]}
                                 </SelectItem>
                               ))
                           ) : (
