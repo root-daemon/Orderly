@@ -89,50 +89,7 @@ export const verify = async (req, res, next) => {
     req.user = { email };
     res.status(200).json({ success: true, email });
   } catch (err) {
-    console.log("ERROR MESSAGE", err.message);
-    if (
-      err.message === "invalid_token" ||
-      err.message === "Token has expired"
-    ) {
-      try {
-        const user = await prisma.user.findUnique({
-          where: { email },
-        });
-
-        if (!user || !user.refreshToken) {
-          return res
-            .status(401)
-            .json({ success: false, message: "Unauthorized" });
-        }
-
-        const { tokens } = await oauth2Client.refreshToken(user.refreshToken);
-
-        await prisma.user.update({
-          where: { email: req.body.email },
-          data: {
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token || user.refreshToken,
-          },
-        });
-
-        res.cookie("accessToken", tokens.access_token, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "None",
-        });
-
-        req.user = { email: req.body.email };
-        return res
-          .status(401)
-          .json({ success: true, message: "User Verified" });
-      } catch (err) {
-        console.error("Failed to refresh access token:", err);
-        return res
-          .status(401)
-          .json({ success: false, message: "Unauthorized" });
-      }
-    } else {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
+    console.error("Error verifying user", err);
+    next(err);
   }
 };

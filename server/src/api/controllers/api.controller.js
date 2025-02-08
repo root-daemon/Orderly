@@ -61,7 +61,6 @@ export const scrapeTimetable = async (req, res, next) => {
         withCredentials: true,
       }
     );
-    console.log("RSUTLS", result);
     if (result) {
       res.status(200).json({
         success: true,
@@ -69,7 +68,7 @@ export const scrapeTimetable = async (req, res, next) => {
       });
     } else {
       res.status(400).json({
-        success: true,
+        success: false,
         message: "Could not scrape timetable from academia",
       });
     }
@@ -110,7 +109,6 @@ export const createCalendar = async (req, res, next) => {
         withCredentials: true,
       }
     );
-    console.log("RSUTLS", result);
     if (result) {
       res.status(200).json({
         success: true,
@@ -158,6 +156,47 @@ export const getJobStatus = async (req, res, next) => {
       },
       select: {
         enabled: true,
+      },
+    });
+
+    res.status(200).json({ success: true, data: data });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+export const deleteCookies = async (req, res, next) => {
+  try {
+    const { email } = req.user;
+
+    const data = await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        academiaEmail: null,
+        academiaCookies: [],
+      },
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+export const getAcademiaEmail = async (req, res, next) => {
+  try {
+    const { email } = req.user;
+
+    const data = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        academiaEmail: true,
       },
     });
 
