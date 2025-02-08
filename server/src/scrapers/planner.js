@@ -111,7 +111,6 @@ const automatePlanner = async (job) => {
 };
 
 const getPlanner = async (page, job) => {
-  console.log("IN GET PLANNER");
   try {
     await new Promise((resolve) => setTimeout(resolve, 3000));
 

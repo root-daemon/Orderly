@@ -47,7 +47,8 @@ export const scrapeProcedure = async (job) => {
     return planner;
   } else if (job.data.type === "scrape timetable") {
     const { email } = job.data.user;
-    console.log(email);
+    const { academiaEmail } = job.data.user;
+
     const data = await automateTimetableScrape(job);
     const { batch } = data;
     const { courses } = data;
@@ -62,6 +63,7 @@ export const scrapeProcedure = async (job) => {
       data: {
         academiaCookies: storedCookies,
         timetable: generatedTimetable,
+        academiaEmail,
       },
     });
 

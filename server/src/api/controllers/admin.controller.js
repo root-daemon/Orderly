@@ -1,4 +1,9 @@
-import { calendarQueue, scraperQueue } from "../../bull/queue.js";
+import {
+  calendarQueue,
+  calendarQueueEvents,
+  scraperQueue,
+  scraperQueueEvents,
+} from "../../bull/queue.js";
 import prisma from "../../../prisma/prisma.client.js";
 import { encrypt } from "../../utils/crypto.js";
 
@@ -47,7 +52,7 @@ export const scrapeTimetable = async (req, res, next) => {
     const { academiaCookies } = user;
     const encryptedPassword = encrypt(academiaPassword);
 
-    await scraperQueue.add("Scrape Academia Timetable", {
+    const job = await scraperQueue.add("Scrape Academia Timetable", {
       type: "scrape timetable",
       user: {
         email,
@@ -57,9 +62,11 @@ export const scrapeTimetable = async (req, res, next) => {
       },
     });
 
-    scraperQueue.on("completed", (job, result) => {
-      console.log("SCRAPER QUEUE COMPLETE"); // fix thsi is broken
-      return true;
+    await job.waitUntilFinished(scraperQueueEvents);
+
+    res.status(200).json({
+      success: true,
+      message: "Succesfully scraped timetable",
     });
   } catch (error) {
     console.error(error);
@@ -107,12 +114,10 @@ export const singleEvent = async (req, res, next) => {
       user,
     });
 
-    // this also broken
+    const result = await job.waitUntilFinished(calendarQueueEvents);
 
-    // const result = await job.waitUntilFinished();
-
-    // console.log(`Job with id ${job.id} has completed. Result: ${result}`);
-    // console.log("Calendar QUEUE COMPLETE");
+    console.log(`Job with id ${job.id} has completed. Result: ${result}`);
+    console.log("Calendar QUEUE COMPLETE");
 
     res.status(200).json({
       success: true,
