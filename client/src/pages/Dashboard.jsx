@@ -145,6 +145,7 @@ const Dashboard = () => {
             title: "Scraped timetable from Academia",
           });
           setLoading(false);
+          window.location.reload();
         }
       } catch (error) {
         console.error("Error scraping timetable from academia", error);
