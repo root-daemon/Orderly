@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const EventBlock = ({ enabled, loading, toggleEnabled, createCalendar }) => {
+const EventBlock = ({ enabled, toggleEnabled, createCalendar }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -31,7 +31,6 @@ const EventBlock = ({ enabled, loading, toggleEnabled, createCalendar }) => {
         <Switch
           checked={enabled}
           key={enabled}
-          disabled={loading}
           onCheckedChange={toggleEnabled}
           className="ml-1"
         />
@@ -47,9 +46,12 @@ const EventBlock = ({ enabled, loading, toggleEnabled, createCalendar }) => {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <Dialog>
+      <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <DialogTrigger asChild>
-          <Button className="select-none" disabled={loading}>
+          <Button
+            className="select-none"
+            onClick={() => setOpen(true)}
+          >
             Manual Trigger
           </Button>
         </DialogTrigger>

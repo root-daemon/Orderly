@@ -13,9 +13,7 @@ const LinksBackground = ({ value }) => {
     });
   }, []);
 
-  const particlesLoaded = (container) => {
-    console.log(container);
-  };
+  const particlesLoaded = (container) => {};
 
   const options = useMemo(
     () => ({

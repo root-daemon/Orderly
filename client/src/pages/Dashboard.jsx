@@ -7,19 +7,35 @@ import { getUniqueSubjects } from "../lib/utils";
 import { mockTimetable } from "../data/data";
 import { useToast } from "@/hooks/use-toast";
 import EventBlock from "../components/EventBlock";
-import SubjectBlock from "../components/SubjectBlock";
-import SubjectInput from "../components/SubjectInput";
-import LinksBackground from "../components/background";
+import Spinner from "../components/Spinner";
 
 const Dashboard = () => {
   const [timetable, setTimetable] = useState(mockTimetable);
   const [dayOrder, setDayOrder] = useState(null);
-  const [subjectInput, setSubjectInput] = useState("");
   const [subjects, setSubjects] = useState(["None"]);
   const [enabled, setEnabled] = useState();
   const [loading, setLoading] = useState(false);
+  const [scrapeDisabled, setScrapeDisabled] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const { toast } = useToast();
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    if (newEmail && !validateEmail(newEmail)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Email",
+      });
+    }
+  };
 
   const getTimetable = async () => {
     const { data } = await axiosInstance.get("/api/timetable");
@@ -116,24 +132,70 @@ const Dashboard = () => {
     }
   };
 
-  const handleEnter = (e) => {
-    if (e.key === "Enter" && subjectInput.trim()) {
-      if (subjects.includes(subjectInput.trim())) {
+  const scrapeTimetable = async () => {
+    setLoading(true);
+    if (scrapeDisabled || (email.length >= 1 && password.length >= 1)) {
+      try {
+        const { data } = await axiosInstance.post("/api/scrape", {
+          email,
+          password,
+        });
+        if (data.success) {
+          toast({
+            title: "Scraped timetable from Academia",
+          });
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error scraping timetable from academia", error);
         toast({
           variant: "destructive",
-          title: "Subject already exists",
+          title: "Could not scrape timetable from academia",
         });
-        return;
+        setLoading(false);
       }
-
-      setSubjects([...subjects, subjectInput.trim()].sort());
-      setSubjectInput("");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Please enter both email and password",
+      });
     }
   };
 
-  const removeSubject = (remove) => {
-    const filtered = subjects.filter((subject) => subject !== remove);
-    setSubjects(filtered);
+  const getAcademiaEmail = async () => {
+    try {
+      const { data } = await axiosInstance.get("/api/academia-email");
+      if (data.success && data.data.academiaEmail) {
+        setEmail(data.data.academiaEmail);
+        setScrapeDisabled(true);
+      }
+    } catch (error) {
+      console.error("Error fetching job:", error);
+    }
+  };
+
+  const deleteCookies = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axiosInstance.get("/api/delete-cookies");
+      if (data.success) {
+        toast({
+          title: `Logged out of Academia`,
+        });
+        setEnabled(data.data);
+        setScrapeDisabled(false);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error logging out", error);
+      toast({
+        variant: "destructive",
+        title: "Could not log out events",
+      });
+      setEnabled(enabled);
+      setLoading(false);
+      setScrapeDisabled(true);
+    }
   };
 
   useEffect(() => {
@@ -142,11 +204,12 @@ const Dashboard = () => {
     getDayOrder();
     getEnabled();
     setLoading(false);
+    getAcademiaEmail();
   }, []);
 
   return (
-    <div className="w-[95%] md:w-[80%] lg:w-[70%] min-h-screen flex flex-col gap-2 justify-start mx-auto items-center p-8">
-      {/* <LinksBackground value={20} /> */}
+    <div className="w-[95%] md:w-[80%] lg:w-[75%] min-h-screen flex flex-col gap-2 justify-start mx-auto items-center p-8">
+      <Spinner loading={loading} />
       <h1 className="self-start font-semibold text-xl mb-4 select-none">
         Today's Day Order: {dayOrder === 0 ? "Holiday" : dayOrder}
       </h1>
@@ -156,14 +219,6 @@ const Dashboard = () => {
         loading={loading}
         toggleEnabled={toggleEnabled}
         createCalendar={createCalendar}
-      />
-
-      <SubjectBlock subjects={subjects} removeSubject={removeSubject} />
-
-      <SubjectInput
-        subjectInput={subjectInput}
-        handleEnter={handleEnter}
-        setSubjectInput={setSubjectInput}
       />
 
       <Tabs defaultValue="timetable" className="w-full">
@@ -176,7 +231,16 @@ const Dashboard = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="timetable">
-          <Timetable timetable={timetable} />
+          <Timetable
+            timetable={timetable}
+            email={email}
+            password={password}
+            handleEmailChange={handleEmailChange}
+            setPassword={setPassword}
+            scrapeTimetable={scrapeTimetable}
+            scrapeDisabled={scrapeDisabled}
+            deleteCookies={deleteCookies}
+          />
         </TabsContent>
         <TabsContent value="form">
           <TimetableForm
