@@ -79,7 +79,9 @@ export const calendarProcedure = async (job) => {
   const refreshToken = user.refreshToken;
   oauth2Client.setCredentials({ refresh_token: refreshToken });
 
-  for (let i = 0; i < 5; i++) {
+  const days = 7;
+
+  for (let i = 0; i < days; i++) {
     const currentDate = DateTime.now()
       .setZone("Asia/Kolkata")
       .plus({ days: i })
