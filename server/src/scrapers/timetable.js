@@ -27,7 +27,7 @@ const login = async (page, job) => {
 
   await password.type(decryptedPassword);
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   await Promise.all([
     page.waitForNavigation({ waitUntil: "networkidle0", timeout: 60000 }),
@@ -94,7 +94,7 @@ const automateTimetableScrape = async (job) => {
 
 const scrapeTimetable = async (page, job) => {
   try {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const batch = await page.evaluate(() => {
       const batchElement = document.querySelector(
