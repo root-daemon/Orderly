@@ -43,7 +43,7 @@ export const Timetable = ({
                 return (
                   <TableCell className="border" key={hourIndex}>
                     {slot && (
-                      <h1 className="font-semibold w-24 text-center">
+                      <h1 className="font-semibold w-24 min-h-10 inline-flex justify-center items-center text-center">
                         {slot.subject.split(":")[0]}
                       </h1>
                     )}

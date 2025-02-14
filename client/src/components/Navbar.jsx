@@ -1,12 +1,10 @@
 import { Github } from "lucide-react";
 import { CalendarDays } from "lucide-react";
-import React from "react";
 import { Button } from "@/components/ui/button";
 import useAuthenticate from "../hooks/useAuthenticate";
 import { login, logout } from "../lib/auth";
 import { Link } from "react-router";
-import Help from "./Help"
-
+import Help from "./Help";
 
 const Navbar = () => {
   const authenticated = useAuthenticate();
