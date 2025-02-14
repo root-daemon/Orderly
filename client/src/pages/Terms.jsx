@@ -3,7 +3,7 @@ export default function Terms() {
     <div className="container mx-auto py-8 px-4 max-w-3xl">
       <h1 className="text-3xl font-bold mb-4">Terms of Service</h1>
       <p className="text-sm text-gray-600 mb-6">
-        Effective Date: [Insert Date]
+        Effective Date: 10/02/25
       </p>
 
       <div className="space-y-6">
@@ -60,7 +60,7 @@ export default function Terms() {
 
         <section>
           <h2 className="text-xl font-semibold mb-2">6. Contact</h2>
-          <p>For questions, contact us at [Insert Contact Email].</p>
+          <p>For questions, contact me on GitHub.</p>
         </section>
 
         <p className="font-semibold mt-4">

@@ -2,9 +2,7 @@ export default function Privacy() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-3xl">
       <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
-      <p className="text-sm text-gray-600 mb-6">
-        Effective Date: [Insert Date]
-      </p>
+      <p className="text-sm text-gray-600 mb-6">Effective Date: 10/02/25</p>
 
       <div className="space-y-6">
         <p>
@@ -66,7 +64,7 @@ export default function Privacy() {
               You can delete your timetable and revoke access at any time.
             </li>
             <li>
-              Contact us at [Insert Contact Email] for data-related inquiries.
+              Contact me on GitHub for data-related inquiries.
             </li>
           </ul>
         </section>
