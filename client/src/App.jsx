@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React from "react";
 import { Link, useNavigate } from "react-router";
 
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
@@ -23,7 +22,7 @@ const App = () => {
   const authenticated = useAuthenticate();
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col justify-center w-full min-h-screen p-4 md:p-5">
+    <div className="flex flex-col justify-center w-full min-h-screen p-4 md:p-5 mb-20">
       <LinksBackground value={40} />
       <div className="flex flex-1 flex-col gap-4 justify-start mt-8 2xl:mt-16 items-center w-full h-full p-2">
         <InteractiveHoverButton className="w-fit my-2 md:my-2 select-none">

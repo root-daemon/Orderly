@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -18,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { days, hours } from "../data/data";
 import axiosInstance from "../lib/axios";
 import { useToast } from "@/hooks/use-toast";
-
+import { getUniqueSubjects } from "../lib/utils";
 export const TimetableForm = ({
   subjects,
   timetable,
@@ -37,33 +36,48 @@ export const TimetableForm = ({
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      const { data } = await axiosInstance.post("/api/timetable", {
-        timetable,
-      });
-      if (data.success) {
-        const { data } = await axiosInstance.post("/api/job", {
-          enabled: true,
+    const uniqueSubjects = getUniqueSubjects(timetable);
+
+    if (uniqueSubjects.length > 1) {
+      e.preventDefault();
+      try {
+        setLoading(true);
+        const { data } = await axiosInstance.post("/api/timetable", {
+          timetable,
         });
         if (data.success) {
-          toast({
-            title: "Updated Timetable",
-            description: "Your Google Calendar will update tomorrow at 12am",
+          const { data } = await axiosInstance.post("/api/job", {
+            enabled: true,
           });
+          if (data.success) {
+            toast({
+              title: "Updated Timetable",
+              description: "Your Google Calendar will update tomorrow at 12am",
+            });
+          }
+          setEnabled(data.data);
+          setLoading(false);
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Could not update timetable",
+          });
+          setEnabled(enabled);
+          setLoading(false);
         }
-        setEnabled(data.data);
-        setLoading(false);
-      } else {
+      } catch (error) {
         toast({
           variant: "destructive",
           title: "Could not update timetable",
         });
-        setEnabled(enabled);
-        setLoading(false);
       }
-    } catch (error) {}
+    } else {
+      toast({
+        variant: "destructive",
+        title:
+          "Cannot save empty timetable, You can switch off automated events if you need to",
+      });
+    }
   };
 
   return (
