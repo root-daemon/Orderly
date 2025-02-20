@@ -54,7 +54,7 @@ export const scrapeProcedure = async (job) => {
     const { courses } = data;
     const { storedCookies } = data;
 
-    const generatedTimetable = generateTimetable(courses, batch);
+    let generatedTimetable = generateTimetable(courses, batch);
 
     if (!generatedTimetable || Object.keys(generatedTimetable).length === 0) {
       generatedTimetable = mockTimetable;

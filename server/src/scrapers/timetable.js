@@ -34,6 +34,18 @@ const login = async (page, job) => {
     next.click(),
   ]);
 
+  const terminateButton = await page.$("#continue_button");
+  if (terminateButton) {
+    await terminateButton.click();
+    await new Promise((r) => setTimeout(r, 10000));
+
+    const confirmButton = await page.$(".confirm-delete_btn");
+    if (confirmButton) {
+      await confirmButton.click();
+      await new Promise((r) => setTimeout(r, 10000));
+    }
+  }
+
   const newCookies = await page.cookies();
   storedCookies = newCookies;
   console.log("Cookies saved.");
@@ -45,7 +57,7 @@ const automateTimetableScrape = async (job) => {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       defaultViewport: { width: 1080, height: 1024 },
       args: [
         "--disable-features=site-per-process",
