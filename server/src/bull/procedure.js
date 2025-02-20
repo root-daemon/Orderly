@@ -56,9 +56,9 @@ export const scrapeProcedure = async (job) => {
 
     const generatedTimetable = generateTimetable(courses, batch);
 
-    if (Object.keys(generatedTimetable).length == 0) {
+    if (!generatedTimetable || Object.keys(generatedTimetable).length === 0) {
       generatedTimetable = mockTimetable;
-    }
+    }    
 
     await prisma.user.update({
       where: {
@@ -83,7 +83,7 @@ export const calendarProcedure = async (job) => {
   const refreshToken = user.refreshToken;
   oauth2Client.setCredentials({ refresh_token: refreshToken });
 
-  const days = 7;
+  const days = 8;
 
   for (let i = 0; i < days; i++) {
     const currentDate = DateTime.now()
