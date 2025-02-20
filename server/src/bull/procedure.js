@@ -7,7 +7,7 @@ import {
   oauth2Client,
 } from "../utils/googleUtils.js";
 import { DateTime } from "luxon";
-import { checkSchedule } from "../utils/data.js";
+import { checkSchedule, mockTimetable } from "../utils/data.js";
 import automateScrape from "../scrapers/dayOrder.js";
 import automatePlanner from "../scrapers/planner.js";
 import automateTimetableScrape from "../scrapers/timetable.js";
@@ -55,6 +55,10 @@ export const scrapeProcedure = async (job) => {
     const { storedCookies } = data;
 
     const generatedTimetable = generateTimetable(courses, batch);
+
+    if (Object.keys(generatedTimetable).length == 0) {
+      generatedTimetable = mockTimetable;
+    }
 
     await prisma.user.update({
       where: {
