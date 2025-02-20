@@ -6,7 +6,7 @@ const scraperQueue = new Queue("scraper", {
     port: process.env.REDIS_PORT,
   },
   defaultJobOptions: {
-    attempts: 3,
+    attempts: 1,
     backoff: {
       type: "exponential",
       delay: 1000,
