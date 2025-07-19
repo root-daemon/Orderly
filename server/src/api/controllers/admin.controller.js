@@ -7,20 +7,6 @@ import {
 import prisma from "../../../prisma/prisma.client.js";
 import { encrypt } from "../../utils/crypto.js";
 
-export const scrapeController = async (req, res, next) => {
-  try {
-    await scraperQueue.add("Scrape Academia", {
-      type: "scrape single",
-    });
-    res.status(200).json({
-      success: true,
-      message: "Added scrape jobs to queue",
-    });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-};
 
 export const scrapePlanner = async (req, res, next) => {
   try {
@@ -38,9 +24,7 @@ export const scrapePlanner = async (req, res, next) => {
 };
 
 export const scrapeTimetable = async (req, res, next) => {
-  const { email } = req.body;
-  const { academiaEmail } = req.body;
-  const { academiaPassword } = req.body;
+  const { email, academiaEmail, academiaPassword } = req.body;
 
   try {
     const user = await prisma.user.findUnique({
@@ -49,7 +33,6 @@ export const scrapeTimetable = async (req, res, next) => {
       },
     });
 
-    const { academiaCookies } = user;
     const encryptedPassword = encrypt(academiaPassword);
 
     const job = await scraperQueue.add("Scrape Academia Timetable", {
@@ -58,7 +41,6 @@ export const scrapeTimetable = async (req, res, next) => {
         email,
         academiaEmail,
         encryptedPassword,
-        academiaCookies,
       },
     });
 

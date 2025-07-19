@@ -1,5 +1,4 @@
 import prisma from "../../prisma/prisma.client.js";
-import { google } from "googleapis";
 import dotenv from "dotenv";
 import {
   addLectureEvents,
@@ -8,7 +7,6 @@ import {
 } from "../utils/googleUtils.js";
 import { DateTime } from "luxon";
 import { checkSchedule, mockTimetable } from "../utils/data.js";
-import automateScrape from "../scrapers/dayOrder.js";
 import automatePlanner from "../scrapers/planner.js";
 import automateTimetableScrape from "../scrapers/timetable.js";
 import generateTimetable from "../utils/generateTimetable.js";
@@ -17,24 +15,7 @@ dotenv.config();
 export const scrapeProcedure = async (job) => {
   console.log("Initialise Scraper Procedure");
   job.log("Initialise Scraper Procedure");
-  if (job.data.type === "scrape" || job.data.type === "scrape single") {
-    const dayOrder = await automateScrape(job);
-    const todayIST = DateTime.now()
-      .setZone("Asia/Kolkata")
-      .toFormat("yyyy-MM-dd");
-
-    job.log(todayIST);
-
-    await prisma.academia.upsert({
-      where: {
-        date: todayIST,
-      },
-      update: {
-        dayOrder,
-      },
-    });
-    return dayOrder;
-  } else if (job.data.type === "scrape planner") {
+  if (job.data.type === "scrape planner") {
     const planner = await automatePlanner(job);
 
     for (const [date, dayOrder] of Object.entries(planner)) {
@@ -52,20 +33,18 @@ export const scrapeProcedure = async (job) => {
     const data = await automateTimetableScrape(job);
     const { batch } = data;
     const { courses } = data;
-    const { storedCookies } = data;
 
     let generatedTimetable = generateTimetable(courses, batch);
 
     if (!generatedTimetable || Object.keys(generatedTimetable).length === 0) {
       generatedTimetable = mockTimetable;
-    }    
+    }
 
     await prisma.user.update({
       where: {
         email,
       },
       data: {
-        academiaCookies: storedCookies,
         timetable: generatedTimetable,
         academiaEmail,
       },

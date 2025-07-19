@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  scrapeController,
   calendarController,
   singleEvent,
   scrapePlanner,
@@ -10,7 +9,6 @@ import { serverAdapter } from "../../bull/bullBoard.js";
 const router = Router();
 
 router.use("/dashboard", serverAdapter.getRouter());
-router.get("/scrape", scrapeController);
 router.get("/scrape-planner", scrapePlanner);
 router.post("/scrape-timetable", scrapeTimetable);
 router.get("/calendar", calendarController);
