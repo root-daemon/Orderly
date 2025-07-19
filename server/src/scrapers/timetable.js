@@ -20,7 +20,7 @@ const login = async (page, job) => {
   const next = await iframe.waitForSelector("#nextbtn");
   next.click();
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const password = await iframe.waitForSelector("#password");
   const decryptedPassword = decrypt(job.data.user.encryptedPassword);
@@ -57,7 +57,7 @@ const automateTimetableScrape = async (job) => {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       defaultViewport: { width: 1080, height: 1024 },
       args: [
         "--disable-features=site-per-process",
