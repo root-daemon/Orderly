@@ -15,7 +15,6 @@ const Dashboard = () => {
   const [subjects, setSubjects] = useState(["None"]);
   const [enabled, setEnabled] = useState();
   const [loading, setLoading] = useState(false);
-  const [scrapeDisabled, setScrapeDisabled] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -134,7 +133,7 @@ const Dashboard = () => {
 
   const scrapeTimetable = async () => {
     setLoading(true);
-    if (scrapeDisabled || (email.length >= 1 && password.length >= 1)) {
+    if (email.length >= 1 && password.length >= 1) {
       try {
         const { data } = await axiosInstance.post("/api/scrape", {
           email,
@@ -168,14 +167,11 @@ const Dashboard = () => {
       const { data } = await axiosInstance.get("/api/academia-email");
       if (data.success && data.data.academiaEmail) {
         setEmail(data.data.academiaEmail);
-        setScrapeDisabled(true);
       }
     } catch (error) {
       console.error("Error fetching job:", error);
     }
   };
-
-
 
   useEffect(() => {
     setLoading(true);
@@ -217,7 +213,6 @@ const Dashboard = () => {
             handleEmailChange={handleEmailChange}
             setPassword={setPassword}
             scrapeTimetable={scrapeTimetable}
-            scrapeDisabled={scrapeDisabled}
           />
         </TabsContent>
         <TabsContent value="form">

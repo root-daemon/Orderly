@@ -18,7 +18,6 @@ export function TimetableModal({
   handleEmailChange,
   setPassword,
   scrapeTimetable,
-  scrapeDisabled,
 }) {
   const [open, setOpen] = useState(false);
 
@@ -45,7 +44,6 @@ export function TimetableModal({
               onChange={handleEmailChange}
               className="col-span-4"
               placeholder="Academia Email"
-              disabled={scrapeDisabled}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -56,7 +54,6 @@ export function TimetableModal({
               onChange={(e) => setPassword(e.target.value)}
               className="col-span-4"
               placeholder="Academia Password"
-              disabled={scrapeDisabled}
             />
           </div>
         </div>
