@@ -10,7 +10,7 @@ export const login = (req, res, next) => {
     const data = oauth2Client.generateAuthUrl({
       access_type: "offline",
       scope: scopes,
-      // prompt: "consent",
+      prompt: "consent",
     });
 
     res.status(200).json({ success: true, data });
@@ -22,6 +22,7 @@ export const login = (req, res, next) => {
 export const redirect = async (req, res, next) => {
   try {
     const { tokens } = await oauth2Client.getToken(req.query.code);
+    console.log("TOKENS", tokens);
 
     oauth2Client.setCredentials(tokens);
 
@@ -36,6 +37,7 @@ export const redirect = async (req, res, next) => {
       },
       update: {
         accessToken,
+        refreshToken,
       },
       create: {
         email,
