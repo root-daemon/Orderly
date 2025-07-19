@@ -1,6 +1,6 @@
 services:
   server:
-    container_name: server
+    container_name: orderly-server
     platform: linux/amd64
     build:
       context: .

@@ -62,7 +62,7 @@ export const calendarProcedure = async (job) => {
   const refreshToken = user.refreshToken;
   oauth2Client.setCredentials({ refresh_token: refreshToken });
 
-  const days = 8;
+  const days = 15;
 
   for (let i = 0; i < days; i++) {
     const currentDate = DateTime.now()
