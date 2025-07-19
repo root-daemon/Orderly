@@ -13,6 +13,7 @@ export const initBull = async () => {
     {
       repeat: {
         cron: "0 3 * * *",
+        tz: "UTC",
       },
     }
   );
