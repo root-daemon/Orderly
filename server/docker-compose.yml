@@ -1,10 +1,9 @@
-version: "3.8"
-
 services:
   server:
     container_name: server
     platform: linux/amd64
     build:
+      context: .
       dockerfile: Dockerfile
     env_file:
       - .env
@@ -14,11 +13,11 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    command: ["pm2-runtime", "start", "index.js"]
 
   redis:
     container_name: redis
     image: redis
-    # persistent storage
     command: redis-server --appendonly yes --replica-read-only no
     restart: always
     volumes:
