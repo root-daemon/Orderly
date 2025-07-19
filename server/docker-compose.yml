@@ -13,7 +13,6 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    command: ["pm2-runtime", "start", "src/index.js"]
 
   redis:
     container_name: redis
