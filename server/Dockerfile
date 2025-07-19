@@ -15,4 +15,4 @@ RUN npx prisma generate
 
 EXPOSE 3000
 
-CMD ["pm2-runtime", "start", "src/index.js"]
+CMD ["sh", "-c", "npx prisma db push && pm2-runtime start src/index.js"]
