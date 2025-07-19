@@ -17,7 +17,6 @@ export const Timetable = ({
   setPassword,
   scrapeTimetable,
   scrapeDisabled,
-  deleteCookies,
 }) => {
   return (
     <div className="flex flex-col w-full mt-6  mx-auto overflow-x-auto bg-white">
@@ -62,7 +61,6 @@ export const Timetable = ({
           setPassword={setPassword}
           scrapeTimetable={scrapeTimetable}
           scrapeDisabled={scrapeDisabled}
-          deleteCookies={deleteCookies}
         />
       </div>
     </div>

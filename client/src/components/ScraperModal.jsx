@@ -19,7 +19,6 @@ export function TimetableModal({
   setPassword,
   scrapeTimetable,
   scrapeDisabled,
-  deleteCookies,
 }) {
   const [open, setOpen] = useState(false);
 
@@ -61,13 +60,6 @@ export function TimetableModal({
             />
           </div>
         </div>
-        <Button
-          className="bg-[#232323] hover:bg-[#232323]/80"
-          onClick={deleteCookies}
-          disabled={!scrapeDisabled}
-        >
-          Logout Academia
-        </Button>
 
         <Button onClick={handleScrapeTimetable}>Scrape Timetable</Button>
       </DialogContent>

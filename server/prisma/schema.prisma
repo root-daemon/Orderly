@@ -13,7 +13,6 @@ model User {
   accessToken     String?
   refreshToken    String?
   timetable       Json?
-  academiaCookies Json?
   academiaEmail   String?
   enabled         Boolean
 }

@@ -175,29 +175,7 @@ const Dashboard = () => {
     }
   };
 
-  const deleteCookies = async () => {
-    try {
-      setLoading(true);
-      const { data } = await axiosInstance.get("/api/delete-cookies");
-      if (data.success) {
-        toast({
-          title: `Logged out of Academia`,
-        });
-        setEnabled(data.data);
-        setScrapeDisabled(false);
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Error logging out", error);
-      toast({
-        variant: "destructive",
-        title: "Could not log out events",
-      });
-      setEnabled(enabled);
-      setLoading(false);
-      setScrapeDisabled(true);
-    }
-  };
+
 
   useEffect(() => {
     setLoading(true);
@@ -240,7 +218,6 @@ const Dashboard = () => {
             setPassword={setPassword}
             scrapeTimetable={scrapeTimetable}
             scrapeDisabled={scrapeDisabled}
-            deleteCookies={deleteCookies}
           />
         </TabsContent>
         <TabsContent value="form">

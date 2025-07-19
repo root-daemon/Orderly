@@ -167,26 +167,6 @@ export const getJobStatus = async (req, res, next) => {
   }
 };
 
-export const deleteCookies = async (req, res, next) => {
-  try {
-    const { email } = req.user;
-
-    const data = await prisma.user.update({
-      where: {
-        email,
-      },
-      data: {
-        academiaEmail: null,
-        academiaCookies: [],
-      },
-    });
-
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-};
 
 export const getAcademiaEmail = async (req, res, next) => {
   try {
