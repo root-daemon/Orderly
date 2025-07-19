@@ -43,7 +43,6 @@ export const redirect = async (req, res, next) => {
         refreshToken,
         timetable: mockTimetable,
         enabled: false,
-        academiaCookies: [],
       },
     });
 

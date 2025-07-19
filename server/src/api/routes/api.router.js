@@ -6,7 +6,6 @@ import {
   getDayOrder,
   getJobStatus,
   updateJob,
-  deleteCookies,
   getAcademiaEmail,
 } from "../controllers/api.controller.js";
 import { scrapeTimetable } from "../controllers/api.controller.js";
@@ -19,7 +18,6 @@ router.get("/dayorder", getDayOrder);
 router.post("/calendar", createCalendar);
 router.post("/job", updateJob);
 router.get("/job", getJobStatus);
-router.get("/delete-cookies", deleteCookies);
 router.get("/academia-email", getAcademiaEmail);
 
 export default router;
