@@ -1,6 +1,9 @@
 const generateTimetable = (courses, batch) => {
   const slotMap = {};
   courses.forEach((course) => {
+    if (course.slot === "N/A") {
+      return;
+    }
     const codes = course.slot
       .split(/[-/]+/)
       .filter((code) => code.trim() !== "");
