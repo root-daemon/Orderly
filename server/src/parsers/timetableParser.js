@@ -68,5 +68,6 @@ export const parseTimetable = (htmlSnippet) => {
     });
   });
 
+  console.log(courses)
   return { batch, courses };
 };
