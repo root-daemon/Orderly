@@ -1,21 +1,33 @@
-import {
-  calendarQueue,
-  calendarQueueEvents,
-  scraperQueue,
-  scraperQueueEvents,
-} from "../../bull/queue.js";
 import prisma from "../../../prisma/prisma.client.js";
 import { encrypt } from "../../utils/crypto.js";
+import {
+  scrapeProcedure,
+  calendarProcedure,
+} from "../../bull/procedure.js";
 
+const makeJob = (data) => ({
+  data,
+  log: (...args) => console.log("[job]", ...args),
+});
 
 export const scrapePlanner = async (req, res, next) => {
   try {
-    await scraperQueue.add("Scrape Academia Planner", {
-      type: "scrape planner",
-    });
+    await scrapeProcedure(makeJob({ type: "scrape planner" }));
+
+    // After planner refresh, sync calendars for enabled users
+    const users = await prisma.user.findMany({ where: { enabled: true } });
+    for (const user of users) {
+      if (!user.refreshToken) continue;
+      try {
+        await calendarProcedure(makeJob({ type: "calendar", user }));
+      } catch (err) {
+        console.error(`Calendar sync failed for ${user.email}:`, err.message);
+      }
+    }
+
     res.status(200).json({
       success: true,
-      message: "Added scrape planner jobs to queue",
+      message: "Scraped planner and synced enabled calendars",
     });
   } catch (error) {
     console.error(error);
@@ -27,24 +39,18 @@ export const scrapeTimetable = async (req, res, next) => {
   const { email, academiaEmail, academiaPassword } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
     const encryptedPassword = encrypt(academiaPassword);
 
-    const job = await scraperQueue.add("Scrape Academia Timetable", {
-      type: "scrape timetable",
-      user: {
-        email,
-        academiaEmail,
-        encryptedPassword,
-      },
-    });
-
-    await job.waitUntilFinished(scraperQueueEvents);
+    await scrapeProcedure(
+      makeJob({
+        type: "scrape timetable",
+        user: {
+          email,
+          academiaEmail,
+          encryptedPassword,
+        },
+      })
+    );
 
     res.status(200).json({
       success: true,
@@ -59,16 +65,12 @@ export const scrapeTimetable = async (req, res, next) => {
 export const calendarController = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
-      where: {
-        enabled: true,
-      },
+      where: { enabled: true },
     });
 
     for (const user of users) {
-      await calendarQueue.add("Add events to calendar", {
-        type: "calendar",
-        user,
-      });
+      if (!user.refreshToken) continue;
+      await calendarProcedure(makeJob({ type: "calendar", user }));
     }
 
     res.status(200).json({
@@ -84,22 +86,18 @@ export const calendarController = async (req, res, next) => {
 export const singleEvent = async (req, res, next) => {
   const { email } = req.body;
   try {
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-        // enabled: true,
-      },
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    if (!user.refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing Google refresh token — log in again with consent",
+      });
+    }
 
-    const job = await calendarQueue.add("Add single user events to calendar", {
-      type: "calendar",
-      user,
-    });
-
-    const result = await job.waitUntilFinished(calendarQueueEvents);
-
-    console.log(`Job with id ${job.id} has completed. Result: ${result}`);
-    console.log("Calendar QUEUE COMPLETE");
+    await calendarProcedure(makeJob({ type: "calendar", user }));
 
     res.status(200).json({
       success: true,

@@ -1,8 +1,10 @@
 import prisma from "../../../prisma/prisma.client.js";
-import { oauth2Client, scopes } from "../../utils/googleUtils.js";
-import axios from "axios";
+import { encrypt } from "../../utils/crypto.js";
+import {
+  scrapeProcedure,
+  calendarProcedure,
+} from "../../bull/procedure.js";
 import { DateTime } from "luxon";
-
 
 export const createTimetable = async (req, res, next) => {
   try {
@@ -10,12 +12,8 @@ export const createTimetable = async (req, res, next) => {
     const { timetable } = req.body;
 
     await prisma.user.update({
-      where: {
-        email,
-      },
-      data: {
-        timetable,
-      },
+      where: { email },
+      data: { timetable },
     });
 
     res
@@ -32,16 +30,11 @@ export const getTimetable = async (req, res, next) => {
     const { email } = req.user;
 
     const data = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      select: {
-        email: true,
-        timetable: true,
-      },
+      where: { email },
+      select: { email: true, timetable: true },
     });
 
-    res.status(200).json({ success: true, data: data });
+    res.status(200).json({ success: true, data });
   } catch (error) {
     console.error(error);
     next(error);
@@ -49,30 +42,24 @@ export const getTimetable = async (req, res, next) => {
 };
 
 export const scrapeTimetable = async (req, res, next) => {
-  req.user.academiaEmail = req.body.email;
-  req.user.academiaPassword = req.body.password;
   try {
-    const result = await axios.post(
-      `${process.env.SERVER_URL}/admin/scrape-timetable`,
-      req.user,
-      {
-        headers: {
-          "x-admin-password": process.env.ADMIN_PASSWORD,
-        },
-        withCredentials: true,
-      }
-    );
-    if (result) {
-      res.status(200).json({
-        success: true,
-        message: "Succesfully scraped timetable from academia",
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: "Could not scrape timetable from academia",
-      });
-    }
+    const { email } = req.user;
+    const academiaEmail = req.body.email;
+    const academiaPassword = req.body.password;
+    const encryptedPassword = encrypt(academiaPassword);
+
+    await scrapeProcedure({
+      data: {
+        type: "scrape timetable",
+        user: { email, academiaEmail, encryptedPassword },
+      },
+      log: (...args) => console.log("[job]", ...args),
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Succesfully scraped timetable from academia",
+    });
   } catch (error) {
     console.error(error);
     next(error);
@@ -85,14 +72,12 @@ export const getDayOrder = async (req, res, next) => {
       .setZone("Asia/Kolkata")
       .toFormat("yyyy-MM-dd");
 
-      const academiaRecord = await prisma.academia.findFirst({
-    where: {
-      date: todayIST,
-    },
-  });
+    const academiaRecord = await prisma.academia.findFirst({
+      where: { date: todayIST },
+    });
 
-  const dayOrder = academiaRecord?.dayOrder || null;
-  res.status(200).json({ success: true, data: dayOrder });
+    const dayOrder = academiaRecord?.dayOrder || null;
+    res.status(200).json({ success: true, data: dayOrder });
   } catch (error) {
     console.error(error);
     next(error);
@@ -101,22 +86,24 @@ export const getDayOrder = async (req, res, next) => {
 
 export const createCalendar = async (req, res, next) => {
   try {
-    const result = await axios.post(
-      `${process.env.SERVER_URL}/admin/calendar`,
-      req.user,
-      {
-        headers: {
-          "x-admin-password": process.env.ADMIN_PASSWORD,
-        },
-        withCredentials: true,
-      }
-    );
-    if (result) {
-      res.status(200).json({
-        success: true,
-        message: "Succesfully added events to calendar",
+    const { email } = req.user;
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user?.refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing Google refresh token — log in again with consent",
       });
     }
+
+    await calendarProcedure({
+      data: { type: "calendar", user },
+      log: (...args) => console.log("[job]", ...args),
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Succesfully added events to calendar",
+    });
   } catch (error) {
     console.error(error);
     next(error);
@@ -129,12 +116,8 @@ export const updateJob = async (req, res, next) => {
     const { enabled } = req.body;
 
     await prisma.user.update({
-      where: {
-        email,
-      },
-      data: {
-        enabled,
-      },
+      where: { email },
+      data: { enabled },
     });
 
     res.status(200).json({
@@ -153,36 +136,27 @@ export const getJobStatus = async (req, res, next) => {
     const { email } = req.user;
 
     const data = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      select: {
-        enabled: true,
-      },
+      where: { email },
+      select: { enabled: true },
     });
 
-    res.status(200).json({ success: true, data: data });
+    res.status(200).json({ success: true, data });
   } catch (error) {
     console.error(error);
     next(error);
   }
 };
 
-
 export const getAcademiaEmail = async (req, res, next) => {
   try {
     const { email } = req.user;
 
     const data = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-      select: {
-        academiaEmail: true,
-      },
+      where: { email },
+      select: { academiaEmail: true },
     });
 
-    res.status(200).json({ success: true, data: data });
+    res.status(200).json({ success: true, data });
   } catch (error) {
     console.error(error);
     next(error);
