@@ -1,9 +1,17 @@
-import { getCookies } from "./login.js";
+import { getCookies, cookieHeader as toCookieHeader } from "./login.js";
 import { parseTimetable } from "../parsers/timetableParser.js";
 import dotenv from "dotenv";
 import axios from "axios";
 import { decrypt } from "../utils/crypto.js";
 dotenv.config();
+
+const USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36";
+
+const TIMETABLE_URLS = [
+  "https://academia.srmist.edu.in/srm_university/academia-academic-services/page/My_Time_Table_2023_24",
+  "https://academia.srmist.edu.in/srm_university/academia-academic-services/page/My_Time_Table",
+];
 
 const automateTimetableScrape = async (job) => {
   try {
@@ -11,33 +19,35 @@ const automateTimetableScrape = async (job) => {
     const decryptedPassword = decrypt(job.data.user.encryptedPassword);
 
     const cookiesObj = await getCookies(email, decryptedPassword);
-    const cookieHeader = Object.entries(cookiesObj)
-      .map(([k, v]) => `${k}=${v}`)
-      .join("; ");
+    const cookieStr = cookiesObj.cookieString || toCookieHeader(cookiesObj);
 
-    const url =
-      "https://academia.srmist.edu.in/srm_university/academia-academic-services/page/My_Time_Table_2023_24";
     const headers = {
       Accept: "*/*",
       "Accept-Language": "en-GB,en;q=0.9",
       Connection: "keep-alive",
-      DNT: "1",
       Referer: "https://academia.srmist.edu.in/",
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+      "User-Agent": USER_AGENT,
       "X-Requested-With": "XMLHttpRequest",
-      Cookie: cookieHeader,
+      Cookie: cookieStr,
     };
 
-    const response = await axios.get(url, { headers });
-
-    if (response.status === 200) {
+    let lastErr = "Failed to fetch timetable data";
+    for (const url of TIMETABLE_URLS) {
+      const response = await axios.get(url, {
+        headers,
+        validateStatus: () => true,
+      });
+      if (response.status !== 200) {
+        lastErr = `HTTP ${response.status} for ${url}`;
+        continue;
+      }
       const timetable = parseTimetable(response.data);
-      const { batch, courses } = timetable;
-      return { batch, courses };
-    } else {
-      throw new Error("Failed to fetch timetable data");
+      if (timetable?.courses?.length) {
+        return { batch: timetable.batch, courses: timetable.courses };
+      }
+      lastErr = `empty timetable from ${url}`;
     }
+    throw new Error(lastErr);
   } catch (error) {
     console.error("Error in getTimetable:", error.message);
     throw error;

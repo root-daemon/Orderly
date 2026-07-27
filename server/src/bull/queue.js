@@ -1,10 +1,10 @@
 import { Queue, QueueEvents } from "bullmq";
+import { getRedisConnection } from "../config/redis.js";
+
+const connection = getRedisConnection();
 
 const scraperQueue = new Queue("scraper", {
-  connection: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+  connection,
   defaultJobOptions: {
     attempts: 1,
     backoff: {
@@ -18,17 +18,11 @@ const scraperQueue = new Queue("scraper", {
 });
 
 const scraperQueueEvents = new QueueEvents("scraper", {
-  connection: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+  connection,
 });
 
 const calendarQueue = new Queue("calendar", {
-  connection: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+  connection,
   defaultJobOptions: {
     attempts: 1,
     backoff: {
@@ -42,10 +36,7 @@ const calendarQueue = new Queue("calendar", {
 });
 
 const calendarQueueEvents = new QueueEvents("calendar", {
-  connection: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+  connection,
 });
 
 export { scraperQueue, scraperQueueEvents, calendarQueue, calendarQueueEvents };

@@ -70,22 +70,23 @@ export const calendarProcedure = async (job) => {
       .plus({ days: i })
       .toFormat("yyyy-MM-dd");
 
-    const { dayOrder } = await prisma.academia.findFirst({
+    const academiaRow = await prisma.academia.findFirst({
       where: {
         date: currentDate,
       },
     });
 
-    if (dayOrder === 0) {
+    if (!academiaRow || academiaRow.dayOrder === 0) {
       job.log(`No Day Order for ${currentDate}`);
       continue;
     }
 
+    const { dayOrder } = academiaRow;
     job.log(`Day Order for ${currentDate}`, dayOrder);
 
-    const lectures = user.timetable[dayOrder];
+    const lectures = user.timetable?.[dayOrder];
 
-    if (checkSchedule(user.timetable)) {
+    if (checkSchedule(user.timetable) && lectures?.length) {
       const startOfDay = DateTime.now()
         .setZone("Asia/Kolkata")
         .plus({ days: i })

@@ -2,6 +2,9 @@ import { Worker } from "bullmq";
 import { calendarProcedure, scrapeProcedure } from "./procedure.js";
 import prisma from "../../prisma/prisma.client.js";
 import { calendarQueue } from "./queue.js";
+import { getRedisConnection } from "../config/redis.js";
+
+const connection = getRedisConnection();
 
 const initScraper = () => {
   const worker = new Worker(
@@ -16,10 +19,7 @@ const initScraper = () => {
       }
     },
     {
-      connection: {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT,
-      },
+      connection,
       concurrency: 1,
     }
   );
@@ -71,10 +71,7 @@ const initCalendar = () => {
       }
     },
     {
-      connection: {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT,
-      },
+      connection,
       concurrency: 1,
     }
   );

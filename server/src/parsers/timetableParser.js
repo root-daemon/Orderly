@@ -1,13 +1,17 @@
 import * as cheerio from "cheerio";
 
-function extractSanitizedHtml(
-  htmlSnippet,
-  containerId = "zc-viewcontainer_My_Time_Table_2023_24"
-) {
+function extractSanitizedHtml(htmlSnippet) {
   const $ = cheerio.load(htmlSnippet);
-  const targetTd = $(`td#${containerId}`);
   let scriptContent = null;
-  if (targetTd.length) {
+
+  const candidates = [
+    "zc-viewcontainer_My_Time_Table_2023_24",
+    "zc-viewcontainer_My_Time_Table",
+  ];
+
+  for (const containerId of candidates) {
+    const targetTd = $(`td#${containerId}`);
+    if (!targetTd.length) continue;
     const script = targetTd.find("script").first();
     if (
       script.length &&
@@ -15,7 +19,18 @@ function extractSanitizedHtml(
       script.html().includes("pageSanitizer.sanitize")
     ) {
       scriptContent = script.html();
+      break;
     }
+  }
+
+  if (!scriptContent) {
+    $("script").each((_, el) => {
+      const html = $(el).html() || "";
+      if (html.includes("pageSanitizer.sanitize")) {
+        scriptContent = html;
+        return false;
+      }
+    });
   }
 
   if (!scriptContent) return null;
@@ -64,13 +79,8 @@ export const parseTimetable = (htmlSnippet) => {
     const columns = $(row).find("td");
     const courseTitle = columns.eq(2).text().trim() || "N/A";
     const slot = columns.eq(8).text().trim() || "N/A";
-    const roomNumber = columns.eq(9).text().trim() || "N/A"; // GCR Code column contains room numbers like "TP 706"
-    console.log(`Column 9 (GCR/Room): '${columns.eq(9).text().trim()}'`);
-    console.log(`Column 10 (Room No): '${columns.eq(10).text().trim()}'`);
-    console.log(`Column 11 (Year): '${columns.eq(11).text().trim()}'`);
-    
-    console.log(`Row ${i}: Title=${courseTitle}, Slot=${slot}, Room=${roomNumber}, Total columns=${columns.length}`);
-    
+    const roomNumber = columns.eq(9).text().trim() || "N/A";
+
     courses.push({
       courseTitle,
       slot,

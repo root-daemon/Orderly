@@ -1,4 +1,7 @@
 .env
+.env.production
 node_modules
 cookies.json
 pnpm-lock.yaml
+.env.cloudrun
+.env.cloudrun.yaml

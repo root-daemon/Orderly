@@ -2,17 +2,20 @@ FROM node:21-bullseye
 
 WORKDIR /app
 
-RUN npm install -g nodemon pm2
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends redis-server \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
-RUN npm install
+RUN npm install --omit=dev
 
-RUN npm install prisma --save-dev
-
-COPY . .
-
+COPY prisma ./prisma
 RUN npx prisma generate
 
+COPY . .
+RUN chmod +x start.sh
+
+ENV PORT=3000
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma db push && pm2-runtime start src/index.js"]
+CMD ["./start.sh"]

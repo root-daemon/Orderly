@@ -31,14 +31,17 @@ export const redirect = async (req, res, next) => {
 
     const { email } = await oauth2Client.getTokenInfo(tokens.access_token);
 
+    const updateData = { accessToken };
+    // Google only returns refresh_token on first consent — don't wipe an existing one
+    if (refreshToken) {
+      updateData.refreshToken = refreshToken;
+    }
+
     await prisma.user.upsert({
       where: {
         email,
       },
-      update: {
-        accessToken,
-        refreshToken,
-      },
+      update: updateData,
       create: {
         email,
         accessToken,
